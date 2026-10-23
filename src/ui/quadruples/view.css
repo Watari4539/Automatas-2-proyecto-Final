@@ -1,0 +1,23 @@
+.quadruples-results { margin-top: 28px; }
+.quadruples-summary { color: #65725f; font-size: 12px; line-height: 1.7; }
+.quadruples-scroll { max-height: 600px; overflow: auto; border: 1px solid #cbdac5; border-radius: 10px; background: #f9fcf5; }
+.quadruples-scroll:focus-visible { outline: 2px solid #759b60; outline-offset: 3px; }
+.quadruples-code { min-width: 100%; width: max-content; }
+.quadruples-record, .quadruples-closure { margin: 0; padding: 6px 20px; font: 13px/1.7 "SFMono-Regular", Consolas, "Liberation Mono", monospace; white-space: pre; color: #2d5038; tab-size: 4; }
+.quadruples-record:nth-child(even) { background: #edf4e7; }
+.quadruples-record + .quadruples-record { border-top: 1px solid #e2ebdb; }
+.quadruples-record.is-pending { color: #785b27; background: #faf1dd; }
+@media (hover: hover) {
+  .quadruples-record:hover { background: #dcebd4; }
+  .quadruples-record.is-pending:hover { background: #f5e5bc; }
+}
+.quadruples-closure { width: max-content; min-width: 100%; background: #dfead8; border-top: 1px solid #bdcfb4; color: #294c34; font-weight: 600; }
+.quadruples-results .analysis-notices { margin: 0 0 18px; }
+.quadruples-results .analysis-notices ul { margin: 0; }
+.quadruples-preview-heading { font-size: 23px; margin: 0; }
+.quadruples-example { display: flex; align-items: center; gap: 10px; color: #36543e; font-size: 13px; }
+.quadruples-example select { max-width: 100%; font: inherit; color: inherit; background: #edf4e8; padding: 10px; border: 1px solid #abc8a7; border-radius: 8px; }
+@media (max-width: 700px) {
+  .quadruples-record, .quadruples-closure { padding: 10px 14px; font-size: 12px; }
+  .quadruples-example { flex-wrap: wrap; }
+}

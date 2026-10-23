@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f5f6f2" />
+    <title>Java · Laboratorio de compilación</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./src/ui/tree/viewer.css" />
+    <link rel="stylesheet" href="./src/ui/quadruples/view.css" />
+    <link rel="stylesheet" href="./src/ui/three-address/view.css" />
+    <script type="module" src="./main.js"></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="./" aria-label="Laboratorio de compilación, inicio">
+        <span class="brand-icon" aria-hidden="true">{ }</span>
+        <span>Java<span class="brand-divider"> / </span>Laboratorio de compilación</span>
+      </a>
+        <div class="header-project">
+          <span class="header-year">2026</span>
+          <div>
+            <p class="header-title">Proyecto para Lenguajes y Autómatas II</p>
+            <p class="header-credit">Desarrollado por: <span>Adrian Nieto</span></p>
+          </div>
+        </div>
+        <button class="documentation-button" type="button" disabled>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 3h10l4 4v14H5z"/><path d="M14 3v5h5M8 12h8M8 16h6"/></svg>
+          <span>Documentación <small>Próximamente</small></span>
+        </button>
+    </header>
+
+    <main>
+      <h1 class="sr-only">Laboratorio de compilación Java</h1>
+
+      <form id="compiler-form" novalidate>
+        <div class="editor">
+          <div class="editor-header">
+            <label for="source-code"><span class="file-icon" aria-hidden="true">&lt;/&gt;</span> Código fuente</label>
+            <span class="language"><span aria-hidden="true"></span> Java</span>
+          </div>
+          <div class="editor-body">
+            <div class="editor-gutter" aria-hidden="true"><pre id="source-line-numbers">1</pre></div>
+            <textarea id="source-code" name="source" wrap="off" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" placeholder="// Escribe o pega aquí tu código Java…"></textarea>
+          </div>
+          <div class="editor-footer">
+            <span id="source-metrics">0 líneas · 0 caracteres</span>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button id="generate-button" type="submit">Generar <span aria-hidden="true">↗</span></button>
+        </div>
+        <p id="analysis-status" class="status" role="status" aria-live="polite" hidden></p>
+      </form>
+
+      <aside id="analysis-notices" class="analysis-notices" aria-labelledby="notices-heading" hidden>
+        <h2 id="notices-heading">Avisos de generación</h2>
+        <ul id="notice-list"></ul>
+      </aside>
+
+      <section id="symbol-results" class="symbol-results" aria-labelledby="symbols-heading" hidden>
+        <div class="results-heading">
+          <h2 id="symbols-heading">Tabla de símbolos</h2>
+          <p id="symbol-summary"></p>
+        </div>
+        <div class="table-scroll" tabindex="0" role="region" aria-label="Tabla de símbolos, desplazamiento horizontal">
+          <table>
+            <caption class="sr-only">Número de ID, lexema y token del código fuente</caption>
+            <thead><tr><th scope="col">Número de ID</th><th scope="col">Lexema</th><th scope="col">Token</th></tr></thead>
+            <tbody id="symbol-rows"></tbody>
+          </table>
+        </div>
+        <nav class="table-pagination" aria-label="Páginas de la tabla">
+          <span id="table-page" aria-live="polite"></span>
+          <div><button id="previous-page" type="button">Anterior</button><button id="next-page" type="button">Siguiente</button></div>
+        </nav>
+      </section>
+
+      <section id="error-results" class="error-results" aria-labelledby="errors-heading" hidden>
+        <div class="results-heading">
+          <h2 id="errors-heading">Tabla de errores</h2>
+          <p id="error-summary"></p>
+        </div>
+        <div id="error-table-scroll" class="table-scroll" tabindex="0" role="region" aria-label="Tabla de errores, desplazamiento horizontal">
+          <table class="errors-table">
+            <caption class="sr-only">Errores léxicos, sintácticos y semánticos del código fuente</caption>
+            <thead><tr><th scope="col">Número de fila</th><th scope="col">Error</th><th scope="col">Justificación</th></tr></thead>
+            <tbody id="error-rows"></tbody>
+          </table>
+        </div>
+        <nav id="error-pagination" class="table-pagination" aria-label="Páginas de errores">
+          <span id="error-page" aria-live="polite"></span>
+          <div><button id="errors-previous" type="button">Anterior</button><button id="errors-next" type="button">Siguiente</button></div>
+        </nav>
+        <details id="error-coverage" class="analysis-notices" hidden>
+          <summary id="coverage-summary"></summary>
+          <ul id="coverage-notices"></ul>
+        </details>
+      </section>
+
+      <section id="tree-results" class="error-results" aria-labelledby="tree-heading" hidden>
+        <div class="results-heading">
+          <h2 id="tree-heading">Árbol abstracto semántico</h2>
+          <p id="tree-summary"></p>
+        </div>
+        <div id="tree-host"></div>
+        <aside id="tree-notices" class="analysis-notices" aria-label="Avisos del árbol" hidden>
+          <ul id="tree-notice-list"></ul>
+        </aside>
+      </section>
+
+      <div id="quadruples-host"></div>
+      <div id="three-address-host"></div>
+
+    </main>
+  </body>
+</html>

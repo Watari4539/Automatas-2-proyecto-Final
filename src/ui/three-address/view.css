@@ -1,0 +1,37 @@
+.three-address-results { margin-top: 28px; }
+.three-address-summary { color: #65725f; font-size: 12px; line-height: 1.7; }
+.three-address-scroll { max-height: 600px; overflow: auto; border: 1px solid #cbdac5; border-radius: 10px; background: #f9fcf5; }
+.three-address-scroll:focus-visible { outline: 2px solid #759b60; outline-offset: 3px; }
+.three-address-code { min-width: 100%; width: max-content; }
+.three-address-record, .three-address-closure { margin: 0; padding: 6px 20px; font: 13px/1.7 "SFMono-Regular", Consolas, "Liberation Mono", monospace; white-space: pre; color: #2d5038; tab-size: 4; }
+.three-address-record:nth-child(even) { background: #edf4e7; }
+.three-address-record + .three-address-record { border-top: 1px solid #e2ebdb; }
+.three-address-record.is-deferred { color: #785b27; background: #faf1dd; }
+@media (hover: hover) {
+  .three-address-record:hover { background: #dcebd4; }
+  .three-address-record.is-deferred:hover { background: #f5e5bc; }
+}
+.three-address-closure { width: max-content; min-width: 100%; background: #dfead8; border-top: 1px solid #bdcfb4; color: #294c34; font-weight: 600; }
+.three-address-results .analysis-notices { margin: 0 0 18px; }
+.three-address-results .analysis-notices ul { margin: 0; }
+.three-address-preview-heading { font-size: 23px; margin: 0; }
+.three-address-example { display: flex; align-items: center; gap: 10px; color: #36543e; font-size: 13px; }
+.three-address-example select { max-width: 100%; font: inherit; color: inherit; background: #edf4e8; padding: 10px; border: 1px solid #abc8a7; border-radius: 8px; }
+@media (max-width: 700px) {
+  .three-address-record, .three-address-closure { padding: 10px 14px; font-size: 12px; }
+  .three-address-example { flex-wrap: wrap; }
+}
+
+.three-address-record.is-deferred { border-left: 3px solid #b29a56; padding-left: 17px; font-weight: 600; }
+@media (max-width: 700px) { .three-address-record.is-deferred { padding-left: 11px; } }
+
+.three-address-table { width: 100%; border-collapse: collapse; text-align: left; }
+.three-address-table th { padding: 10px 20px; background: #dfead8; color: #36543e; font-size: 12px; font-weight: 600; }
+.three-address-table td { padding: 6px 20px; white-space: pre; }
+.three-address-table th + th, .three-address-table td + td { border-left: 1px solid #cbdac5; }
+.three-address-table th:last-child { width: 30%; white-space: nowrap; }
+.three-address-table .three-address-closure { width: auto; }
+@media (max-width: 700px) {
+  .three-address-table td, .three-address-table th { padding: 10px 14px; }
+}
+.three-address-table td { font: inherit; color: inherit; }

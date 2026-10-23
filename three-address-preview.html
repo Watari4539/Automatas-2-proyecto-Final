@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tres direcciones · Vista previa</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./src/ui/three-address/view.css" />
+  <script type="module" src="./src/ui/three-address/preview.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="./"><span class="brand-icon" aria-hidden="true">{ }</span>Java / Laboratorio de compilación</a>
+    <span class="course">Lenguajes y Autómatas II</span>
+  </header>
+  <main>
+    <div class="results-heading">
+      <h1 class="three-address-preview-heading">Vista previa</h1>
+      <label class="three-address-example">Ejemplo
+        <select id="three-address-example">
+          <option value="viernes">Viernes</option>
+          <option value="pending">Operaciones pendientes</option>
+          <option value="long">Secuencia larga</option>
+          <option value="partial">Evaluación parcial</option>
+          <option value="blocked">Memoria insuficiente</option>
+          <option value="unsupported">Operador no soportado</option>
+          <option value="invalid">Secuencia inválida</option>
+          <option value="empty">Sin resultados</option>
+        </select>
+      </label>
+    </div>
+    <div id="three-address-preview"></div>
+    <p id="preview-error" class="status" role="alert" hidden></p>
+  </main>
+</body>
+</html>

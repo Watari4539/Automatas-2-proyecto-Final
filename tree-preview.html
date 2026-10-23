@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Árbol · Vista previa</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./src/ui/tree/viewer.css" />
+  <script type="module" src="./src/ui/tree/preview.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="./"><span class="brand-icon" aria-hidden="true">{ }</span>Java / Laboratorio de compilación</a>
+    <span class="course">Lenguajes y Autómatas II</span>
+  </header>
+  <main>
+    <div class="results-heading">
+      <h1 style="font-size: 23px; margin: 0">Árbol abstracto semántico</h1>
+      <label>Ejemplo <select id="tree-example" style="font: inherit; color: #36543e; background: #edf4e8; padding: 10px; border: 1px solid #abc8a7; border-radius: 8px"><option value="expression">Expresión de b</option><option value="program">Viernes</option><option value="empty">Sin árbol</option></select></label>
+    </div>
+    <div id="tree-preview"></div>
+    <p id="preview-error" class="status" role="alert" hidden></p>
+  </main>
+</body>
+</html>
