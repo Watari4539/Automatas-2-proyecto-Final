@@ -9,7 +9,7 @@ const wrap = body => `public class Demo { public static void main(String[] args)
 test('integración conserva tablas y genera Viernes con los mismos IDs y 13 operaciones', () => {
   const source = fixture('ArbolViernes');
   const result = analyzeProgram(source);
-  const { treeAnalysis, quadrupleAnalysis, threeAddressAnalysis, ...tables } = result;
+  const { treeAnalysis, quadrupleAnalysis, threeAddressAnalysis, optimizationAnalysis, ...tables } = result;
   assert.deepEqual(tables, requestAnalysis(source));
   assert.equal(treeAnalysis.status, 'success');
   assert.equal(treeAnalysis.layout.nodes[0].fullLabel, 'ID2\nPMAIN');

@@ -1,3 +1,6 @@
+import { optimizeQuadruples } from './optimization/index.js';
+import { collectConstantAssignments } from './optimization/evidence.js';
+import { createEmptyOptimizationResult } from './optimization/model.js';
 import { requestAnalysis } from './index.js';
 import { buildProgramTree } from './tree/program.js';
 import { evaluateTree } from './tree/evaluation.js';
@@ -12,6 +15,7 @@ export function analyzeProgram(source) {
   result.treeAnalysis = { status: 'empty', layout: null, diagnostics: [] };
   result.quadrupleAnalysis = { status: 'empty', records: [], closure: null, diagnostics: [] };
   result.threeAddressAnalysis = createEmptyResult();
+  result.optimizationAnalysis = { ...createEmptyOptimizationResult(), status: source.trim() ? 'blocked' : 'empty' };
   const threeUnavailable = (status, message) => ({ ...createEmptyResult(), status, diagnostics: [{ message }] });
   const unavailable = (status, message) => ({ status, records: [], closure: null, diagnostics: [{ message }] });
   if (!source.trim()) return result;
@@ -45,6 +49,14 @@ export function analyzeProgram(source) {
       result.quadrupleAnalysis = buildQuadruples(evaluated.tree);
     } catch {
       result.quadrupleAnalysis = unavailable('failed', 'No se pudieron generar los cuádruplos. Las tablas y el árbol siguen disponibles.');
+    }
+    try {
+      if (result.quadrupleAnalysis.status === 'success' && !result.errors.length) {
+        const constantAssignments = collectConstantAssignments(source, evaluated.tree, result.quadrupleAnalysis);
+        result.optimizationAnalysis = optimizeQuadruples(result.quadrupleAnalysis, { constantAssignments });
+      }
+    } catch {
+      result.optimizationAnalysis = { ...createEmptyOptimizationResult(), status: 'invalid', diagnostics: [{ message: 'No se pudo completar la optimización. Los cuádruplos originales siguen disponibles.' }] };
     }
     try {
       result.threeAddressAnalysis = result.quadrupleAnalysis.validation?.valid

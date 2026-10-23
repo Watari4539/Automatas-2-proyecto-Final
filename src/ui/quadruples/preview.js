@@ -1,3 +1,4 @@
+import { optimizeQuadruples } from '../../compiler/optimization/index.js';
 import { createQuadruplesView } from './view.js';
 import { buildProgramTree } from '../../compiler/tree/program.js';
 import { evaluateTree } from '../../compiler/tree/evaluation.js';
@@ -31,7 +32,7 @@ async function showExample() {
       result.validation = validateQuadruples(tree, result);
       result.status = 'invalid';
     }
-    view.show(result);
+    view.show(result, { optimization: optimizeQuadruples(result) });
   } catch (cause) { if (current === revision) { error.textContent = cause.message; error.hidden = false; } }
 }
 select.addEventListener('change', showExample);

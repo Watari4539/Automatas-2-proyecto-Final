@@ -1,3 +1,4 @@
+import { analyzeProgram } from './src/compiler/analysis.js';
 import { registerCacheWorker } from './src/pwa/register.js';
 import { createSourceHighlighting } from './src/ui/source-highlighting.js';
 import { createSourceLineNumbers } from './src/ui/source-editor.js';
@@ -74,9 +75,8 @@ form.addEventListener('submit', (event) => {
   busy(true);
   announce('Analizando…', 'working');
   const requestId = revision;
-  try {
-    worker = new Worker(new URL('./src/compiler/worker.js', import.meta.url), { type: 'module' });
-    worker.onmessage = ({ data }) => {
+  const source = sourceInput.value;
+  const receive = ({ data }) => {
       if (data.requestId !== revision) return;
       stopPending();
       if (data.error) { announce(data.error, 'incomplete'); return; }
@@ -84,20 +84,38 @@ form.addEventListener('submit', (event) => {
       results.show(result);
       errors.show(result);
       tree.show(result);
-      quadruples.show(result.quadrupleAnalysis, { hasSourceErrors: result.errors.length > 0 });
+      quadruples.show(result.quadrupleAnalysis, { hasSourceErrors: result.errors.length > 0, optimization: result.optimizationAnalysis });
       threeAddress.show(result.threeAddressAnalysis, { hasSourceErrors: result.errors.length > 0 });
       status.hidden = true;
       status.textContent = '';
-    };
-    worker.onerror = () => {
+  };
+  // Some browsers cannot start module Workers. Reuse the same bounded engine
+  // on the page in that case; never load a second implementation from the network.
+  const fallback = () => {
+    if (requestId !== revision) return;
+    worker?.terminate();
+    worker = undefined;
+    setTimeout(() => {
       if (requestId !== revision) return;
-      stopPending();
-      announce('No se pudo iniciar o terminar el análisis. Abre el proyecto con un servidor local (consulta README.md) e inténtalo de nuevo.', 'incomplete');
+      try { receive({ data: { requestId, result: analyzeProgram(source) } }); }
+      catch (error) {
+        console.error('Falló el análisis local.', error);
+        stopPending();
+        announce('No se pudo terminar el análisis local. Intenta con un código más pequeño o vuelve a abrir la aplicación con conexión para actualizarla.', 'incomplete');
+      }
+    }, 0);
+  };
+  try {
+    worker = new Worker(new URL('./src/compiler/worker.js', import.meta.url), { type: 'module' });
+    worker.onmessage = receive;
+    worker.onerror = (event) => {
+      event.preventDefault();
+      console.warn('No se pudo usar el Worker; se utilizará el análisis local.', event.message);
+      fallback();
     };
     worker.postMessage({ requestId, source: sourceInput.value });
   } catch {
-    stopPending();
-    announce('No se pudo iniciar el análisis. Abre el proyecto con un servidor local y un navegador moderno.', 'incomplete');
+    fallback();
   }
 });
 

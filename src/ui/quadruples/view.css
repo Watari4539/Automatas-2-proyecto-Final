@@ -21,3 +21,17 @@
   .quadruples-record, .quadruples-closure { padding: 10px 14px; font-size: 12px; }
   .quadruples-example { flex-wrap: wrap; }
 }
+
+.quadruples-tabs { display: flex; gap: 6px; padding: 5px; margin: 0 0 18px; width: fit-content; max-width: 100%; overflow-x: auto; border: 1px solid #cbdac5; border-radius: 12px; background: #eaf1e5; }
+.quadruples-tabs[hidden] { display: none; }
+.quadruples-tabs button { flex-shrink: 0; border: 0; border-radius: 8px; padding: 11px 16px; background: transparent; color: #48624a; font: inherit; font-size: 13px; cursor: pointer; }
+.quadruples-tabs button[aria-selected="true"] { background: #246c49; color: #fff; box-shadow: 0 2px 5px #183c2520; }
+.quadruples-tabs button:focus-visible { outline: 2px solid #246c49; outline-offset: 2px; }
+.optimization-table { width: 100%; min-width: 850px; border-collapse: collapse; color: #2d5038; font: 12px/1.7 "SFMono-Regular", Consolas, monospace; }
+.optimization-table th { text-align: left; position: sticky; top: 0; background: #dfead8; padding: 14px 16px; font: 600 11px/1.5 system-ui, sans-serif; color: #36543e; }
+.optimization-table td { padding: 12px 16px; border-top: 1px solid #e2ebdb; vertical-align: top; white-space: pre; }
+.optimization-table th:first-child { width: 32%; }
+.optimization-table th:last-child { width: 40%; }
+.optimization-table tbody tr:nth-child(even) { background: #edf4e7; }
+@media (hover: hover) { .optimization-table tbody tr:hover { background: #dcebd4; } }
+@media (max-width: 700px) { .quadruples-tabs { width: 100%; } .quadruples-tabs button { padding: 11px 12px; font-size: 12px; } }
