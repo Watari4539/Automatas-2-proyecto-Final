@@ -35,7 +35,7 @@ test('instalación descarga todos los recursos con integridad dentro del subdire
     assert.equal(request.cache, 'reload');
     assert.match(request.integrity, /^sha256-/);
   }
-  assert.equal(w.listeners.fetch, undefined);
+  assert.equal(typeof w.listeners.fetch, 'function');
 });
 test('un fallo rechaza la instalación y las cachés se separan por proyecto', async () => {
   const a = worker('https://example.test/a/', true), b = worker('https://example.test/b/');
