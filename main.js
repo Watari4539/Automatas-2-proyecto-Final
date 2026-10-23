@@ -1,3 +1,4 @@
+import { registerCacheWorker } from './src/pwa/register.js';
 import { createSourceHighlighting } from './src/ui/source-highlighting.js';
 import { createSourceLineNumbers } from './src/ui/source-editor.js';
 import { createSymbolTableView } from './src/ui/symbol-table.js';
@@ -99,3 +100,6 @@ form.addEventListener('submit', (event) => {
     announce('No se pudo iniciar el análisis. Abre el proyecto con un servidor local y un navegador moderno.', 'incomplete');
   }
 });
+
+// Prepare local application files without delaying the editor or analysis.
+registerCacheWorker();
