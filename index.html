@@ -33,6 +33,10 @@
     <main>
       <h1 class="sr-only">Laboratorio de compilación Java</h1>
 
+      <div class="input-mode"><label for="input-mode">Entrada</label>
+        <select id="input-mode"><option value="java" selected>Código Java</option><option value="quadruples">Cuádruplos · Optimización</option></select>
+      </div>
+      <p id="quadruple-help" class="quadruples-summary" hidden>Formato: 1.- (2, +, 3, 5). Una operación por línea y resultado literal con su tipo. Cierre ID1 PMAIN → [n] opcional. Se considera la secuencia completa; un ID con una sola asignación constante puede propagarse.</p>
       <form id="compiler-form" novalidate>
         <div class="editor">
           <div class="editor-header">

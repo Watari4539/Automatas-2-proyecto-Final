@@ -131,3 +131,5 @@ textarea.source-colorized::selection { background: #649d8066; color: transparent
 
 @media (max-width: 1100px) { .site-header .brand { width: 100%; } .header-project { margin-left: 0; } }
 @media (max-width: 700px) { .header-project { flex: 1 1 260px; } .brand-icon { flex-shrink: 0; } }
+.input-mode { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; color: #36543e; }
+.input-mode select { max-width: 100%; border: 1px solid #abc8a7; border-radius: 10px; background: #eaf1e5; color: #294c34; padding: 12px; font: inherit; }

@@ -112,3 +112,11 @@ Se puede comprobar en `quadruples-preview.html`, que ahora suministra resultados
 `collectConstantAssignments` reutiliza el lector de estructura y la resolución de nombres de `prepareExpressionSource`: vincula cada asignación por nodeId/symbolId y rechaza símbolos con escrituras posteriores a su declaración, incluidas incrementos y asignaciones compuestas. Admite locales, campos y parámetros; el motor verifica por separado que el valor provenga de constantes antes de aplicar PC. No interpreta como constante una llamada externa aunque tenga un resultado evaluado.
 
 Verificación final: 306 pruebas aprobadas, incluida integración con las salidas originales sin cambios, transporte de resultados, evidencia de constancia y limpieza de estados vacíos/erróneos. En navegador se apagó el servidor, se recargó la página y se generó el ejemplo Facil: 10 originales, 3 finales y 7 eliminados. Se verificaron las pestañas, limpieza al editar y regeneración. Caché actualizada con 58 archivos. La prueba física en iPhone continúa pendiente; no se publicó el repositorio automáticamente.
+
+## Entrada alternativa de cuádruplos
+
+El selector superior inicia siempre en Código Java. El modo Cuádruplos acepta registros numerados consecutivamente, cuatro campos separados por comas y un cierre opcional `ID1 PMAIN → [n]` (también `->`). Respeta comillas y comas dentro de cadenas. Los resultados deben ser literales concretos con su tipo; los resultados simbólicos como `x` o `5+x` no están admitidos en esta versión. Los errores indican la línea y no muestran salidas parciales.
+
+La secuencia se considera completa: PC solo recibe evidencia para IDs con una única asignación en ella y sigue requiriendo procedencia constante. Se conservan por separado ambos borradores mientras la página está abierta. Cambiar de modo cancela el trabajo y limpia las salidas. En modo alternativo solo se muestran Optimización y Resultado final; no se generan tablas de símbolos/errores Java, árbol o tres direcciones.
+
+El parser no ejecuta texto como código. Comprueba límites, registros anteriores, estructura y resultados calculables. La ejecución usa el Worker con el mismo respaldo local que el modo Java. Inventario offline regenerado; pruebas de parser e integración visual verificadas.

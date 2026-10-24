@@ -58,6 +58,7 @@ export function createQuadruplesView(host) {
   let rows = [], ending = null, page = 0, destroyed = false;
   let selected = 0, originalRows = [], originalEnding = null, optimized = null, explanations = [];
   function selectTab(index, focus = false) {
+    if (buttons[index].hidden) index = 1;
     selected = index; page = 0;
     rows = index === 0 ? originalRows : index === 1 ? explanations : optimized.records;
     ending = index === 0 ? originalEnding : index === 2 ? optimized.closure : null;
@@ -69,7 +70,9 @@ export function createQuadruplesView(host) {
   buttons.forEach((tab, index) => {
     tab.addEventListener('click', () => selectTab(index), {signal: abort.signal});
     tab.addEventListener('keydown', event => {
-      const target = event.key === 'ArrowRight' ? (index + 1) % 3 : event.key === 'ArrowLeft' ? (index + 2) % 3 : event.key === 'Home' ? 0 : event.key === 'End' ? 2 : null;
+      const available = buttons.map((button, i) => button.hidden ? null : i).filter(i => i !== null);
+      const position = available.indexOf(index);
+      const target = event.key === 'ArrowRight' ? available[(position + 1) % available.length] : event.key === 'ArrowLeft' ? available[(position + available.length - 1) % available.length] : event.key === 'Home' ? available[0] : event.key === 'End' ? available.at(-1) : null;
       if (target !== null) { event.preventDefault(); selectTab(target, true); }
     }, {signal: abort.signal});
   });
@@ -107,7 +110,7 @@ export function createQuadruplesView(host) {
     code.replaceChildren(); closure.textContent = ''; noticeList.replaceChildren();
     summary.textContent = ''; pageLabel.textContent = ''; section.hidden = true;
   }
-  function show(data, { hasSourceErrors = false, optimization = null } = {}) {
+  function show(data, { hasSourceErrors = false, optimization = null, optimizationOnly = false } = {}) {
     if (destroyed) throw new Error('La vista ya fue destruida.');
     clear();
     if (!data || data.status === 'empty') return;
@@ -120,12 +123,13 @@ export function createQuadruplesView(host) {
       optimized = optimization?.status === 'success' && optimization.validation?.valid === true ? optimization : null;
       explanations = optimized ? formatOptimizationTable(optimized) : [];
       tabs.hidden = !optimized;
+      buttons[0].hidden = optimizationOnly;
       if (optimized) panel.setAttribute('role', 'tabpanel');
       const pending = originalRows.filter(row => row.result.status === 'pending').length;
       summary.textContent = optimized ? `${originalRows.length} originales · ${optimized.records.length} finales · ${originalRows.length - optimized.records.length} ${originalRows.length - optimized.records.length === 1 ? 'eliminado' : 'eliminados'}` : `${originalRows.length} registros · ${pending} pendientes`;
       if (hasSourceErrors) messages.push('Consulta también los errores de la tabla: estos cuádruplos representan el subconjunto admitido por el árbol.');
       if (pending) messages.push('Los resultados no evaluados aparecen como «Pendiente».');
-      selectTab(0);
+      selectTab(optimizationOnly ? 1 : 0);
     } else {
       summary.textContent = data.status === 'unsupported' ? 'Fuera del alcance' : 'No disponible';
       messages.push('No hay una secuencia validada para mostrar.');

@@ -1,3 +1,4 @@
+import { analyzeQuadrupleInput } from './src/compiler/optimization/input.js';
 import { analyzeProgram } from './src/compiler/analysis.js';
 import { registerCacheWorker } from './src/pwa/register.js';
 import { createSourceHighlighting } from './src/ui/source-highlighting.js';
@@ -8,6 +9,9 @@ import { createQuadruplesView } from './src/ui/quadruples/view.js';
 import { createThreeAddressView } from './src/ui/three-address/view.js';
 import { createTreeResultsView } from './src/ui/tree/results.js';
 
+const modeSelect = document.querySelector('#input-mode');
+let mode = 'java';
+const drafts = {java: '', quadruples: ''};
 const form = document.querySelector('#compiler-form');
 const sourceInput = document.querySelector('#source-code');
 createSourceLineNumbers(sourceInput, document.querySelector('#source-line-numbers'));
@@ -66,7 +70,7 @@ form.addEventListener('submit', (event) => {
   quadruples.clear();
   threeAddress.clear();
   if (!sourceInput.value.trim()) {
-    announce('Escribe o pega código Java.', 'empty');
+    announce(mode === 'java' ? 'Escribe o pega código Java.' : 'Escribe o pega tus cuádruplos.', 'empty');
     sourceInput.setAttribute('aria-invalid', 'true');
     sourceInput.focus();
     return;
@@ -81,6 +85,11 @@ form.addEventListener('submit', (event) => {
       stopPending();
       if (data.error) { announce(data.error, 'incomplete'); return; }
       const { result } = data;
+      if (mode === 'quadruples') {
+        if (result.inputError) { announce(result.inputError, 'incomplete'); return; }
+        quadruples.show(result.quadrupleAnalysis, {optimization: result.optimizationAnalysis, optimizationOnly: true});
+        status.hidden = true; status.textContent = ''; return;
+      }
       results.show(result);
       errors.show(result);
       tree.show(result);
@@ -97,7 +106,7 @@ form.addEventListener('submit', (event) => {
     worker = undefined;
     setTimeout(() => {
       if (requestId !== revision) return;
-      try { receive({ data: { requestId, result: analyzeProgram(source) } }); }
+      try { receive({ data: { requestId, result: mode === 'java' ? analyzeProgram(source) : analyzeQuadrupleInput(source) } }); }
       catch (error) {
         console.error('Falló el análisis local.', error);
         stopPending();
@@ -113,7 +122,7 @@ form.addEventListener('submit', (event) => {
       console.warn('No se pudo usar el Worker; se utilizará el análisis local.', event.message);
       fallback();
     };
-    worker.postMessage({ requestId, source: sourceInput.value });
+    worker.postMessage({ requestId, source: sourceInput.value, mode });
   } catch {
     fallback();
   }
@@ -121,3 +130,14 @@ form.addEventListener('submit', (event) => {
 
 // Prepare local application files without delaying the editor or analysis.
 registerCacheWorker();
+
+modeSelect.addEventListener('change', () => {
+  drafts[mode] = sourceInput.value;
+  mode = modeSelect.value;
+  sourceInput.value = drafts[mode];
+  sourceInput.placeholder = mode === 'java' ? '// Escribe o pega aquí tu código Java…' : '1.- (99, +, 10, 109)\n2.- ([1], /, 1, 109)';
+  document.querySelector('.editor-header label').textContent = mode === 'java' ? 'Código fuente' : 'Cuádruplos de entrada';
+  document.querySelector('.language').textContent = mode === 'java' ? 'Java' : 'Cuádruplos';
+  document.querySelector('#quadruple-help').hidden = mode === 'java';
+  sourceInput.dispatchEvent(new Event('input', {bubbles: true}));
+});
