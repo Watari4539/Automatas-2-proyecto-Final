@@ -1,3 +1,4 @@
+import { equivalentSymbolicText, normalizeTupleQuotes } from './symbolic-input.js';
 import { readLiteral, symbolicValue, annotation, convertValue, binaryValue } from '../tree/values.js';
 import { optimizeQuadruples } from './index.js';
 
@@ -13,6 +14,11 @@ function splitFields(text) {
   }
   if (quote || depth) throw new Error('Comillas o delimitadores sin cerrar.');
   fields.push(text.slice(start).trim());
+  // Tolerate the classroom shorthand: ([2], / [3], result).
+  if (fields.length === 3) {
+    const combined = /^([+*/=-])\s+(.+)$/.exec(fields[1]);
+    if (combined) fields.splice(1, 1, combined[1], combined[2]);
+  }
   if (fields.length !== 4 || fields.some(f => !f)) throw new Error('Se requieren cuatro campos separados por comas.');
   return fields;
 }
@@ -50,7 +56,7 @@ export function analyzeQuadrupleInput(source) {
       throw new Error(`Operando no reconocido: ${text}`);
     };
     for (const raw of source.split(/\r\n|\r|\n/)) {
-      line++; const text=raw.trim(); if (!text) continue;
+      line++; const text=normalizeTupleQuotes(raw.trim()); if (!text) continue;
       if (closure) throw new Error('El cierre debe ser la última línea.');
       const end=/^(ID[1-9]\d*)\s+PMAIN\s*(?:→|->)\s*(\[\d+\])$/.exec(text);
       if (end) { closure={classSymbolId:end[1],entry:'PMAIN',target:operand(end[2])}; continue; }
@@ -69,13 +75,17 @@ export function analyzeQuadrupleInput(source) {
       }
       let computed=null;
       const random = operator === '.' && left.kind === 'external' && left.text === 'Math' && right.kind === 'external' && ['random', 'random()'].includes(right.text);
-      if (random && resultText === 'x') computed = symbolicValue('double', 'x');
+      if (random && /^[xX](?:\.0)?$/.test(resultText)) computed = symbolicValue('double', 'x');
       if (['+','-','*','/'].includes(operator) && a && b) computed=binaryValue(operator,a,b);
       if (['=','RTN'].includes(operator) && b) computed=b.symbolic ? b : convertValue(b,value(resultText).type,'cast');
       if (operator === 'SOUT' && b) computed=b;
+      if (operator === '.' && b && ['symbol', 'constructor'].includes(left.kind)) computed=b;
+      if (operator === '.' && a?.type === 'String' && !a.symbolic && right.kind === 'external' && right.text === 'length()')
+        computed={type:'int',value:BigInt(a.value.length),constant:false};
       result={status:'available',...annotation(computed?.symbolic ? computed : value(resultText))};
-      if (computed?.symbolic && result.display !== resultText) throw new Error('La expresión simbólica no coincide con los operandos.');
+      if (computed?.symbolic && !equivalentSymbolicText(resultText, result.display)) throw new Error('La expresión simbólica no coincide con los operandos.');
       if (computed && (computed.type !== result.type || !Object.is(computed.value,result.value))) throw new Error('El resultado no coincide con los operandos y su tipo.');
+      if (computed?.symbolic) result.display = resultText;
       records.push({number:records.length+1,nodeId:`input${records.length+1}`,contextId:'input',source:{line,column:1,start:0,end:raw.length},left,operator,right,result});
     }
     if (!records.length) throw new Error('Escribe al menos un cuádruplo.');

@@ -128,3 +128,17 @@ En la entrada directa, los operandos de cálculo y los valores de asignación/RT
 Las llamadas externas con argumentos se rechazan explícitamente en este modo hasta disponer de un parser estructurado para ellos; las llamadas sin argumentos como `random()` siguen admitidas. Esto impide esconder referencias inválidas o conservar referencias eliminadas dentro de texto opaco. El modo Java mantiene su soporte existente de llamadas.
 
 Se admiten los mínimos decimales firmados de int y long en la entrada directa, conservando el rechazo de magnitudes fuera de rango. Pruebas de regresión incorporadas para estos casos; esta corrección no amplía el desarrollo de operadores unarios del árbol Java ni cambia la política académica de valores no finitos.
+
+### Notación simbólica en la entrada manual
+Se admiten `x`, `X` y `X.0` como resultado de Math.random(), y
+coeficientes como `15X.0`. La entrada comprueba equivalencia de expresiones
+afines (sumas, restas, productos por constantes y divisiones entre constantes)
+con un lector acotado, sin ejecutar texto. Se conserva la escritura del resultado
+introducido. Esto valida la notación; no añade una nueva técnica de optimización
+ni convierte resultados simbólicos en constantes.
+
+Se normalizan comillas tipográficas y se admite la abreviatura
+`([2], / [3], resultado)`. Se verifica la longitud de cadenas literales en
+length(); los accesos a métodos mediante IDs propagan su retorno.
+Expresiones simbólicas fuera de esa equivalencia limitada siguen requiriendo
+el formato exacto del evaluador.
