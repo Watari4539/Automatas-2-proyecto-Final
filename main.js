@@ -12,6 +12,9 @@ import { createTreeResultsView } from './src/ui/tree/results.js';
 
 const modeSelect = document.querySelector('#input-mode');
 let mode = 'java';
+const tupleStyle = document.querySelector('#quadruple-entry-style');
+const tupleText = document.querySelector('#quadruple-text');
+const activeText = () => mode === 'java' ? sourceInput : tupleText;
 
 const form = document.querySelector('#compiler-form');
 const sourceInput = document.querySelector('#source-code');
@@ -48,7 +51,7 @@ function stopPending() {
 }
 
 const tupleInput = createQuadrupleInput(document.querySelector('#quadruple-input'), clearAnalysis);
-const currentSource = () => mode === 'java' ? sourceInput.value : tupleInput.source();
+const currentSource = () => mode === 'java' ? sourceInput.value : tupleStyle.value === 'text' ? tupleText.value : tupleInput.source();
 
 function clearAnalysis() {
   const source = sourceInput.value;
@@ -57,6 +60,7 @@ function clearAnalysis() {
   metrics.textContent = `${lines} ${lines === 1 ? 'línea' : 'líneas'} · ${characters} ${characters === 1 ? 'carácter' : 'caracteres'}`;
   status.hidden = true;
   sourceInput.removeAttribute('aria-invalid');
+  tupleText.removeAttribute('aria-invalid');
   stopPending();
   results.clear();
   errors.clear();
@@ -65,6 +69,7 @@ function clearAnalysis() {
   threeAddress.clear();
 }
 sourceInput.addEventListener('input', clearAnalysis);
+tupleText.addEventListener('input', clearAnalysis);
 
 form.addEventListener('submit', (event) => {
   event.preventDefault();
@@ -74,17 +79,18 @@ form.addEventListener('submit', (event) => {
   tree.clear();
   quadruples.clear();
   threeAddress.clear();
-  if (mode === 'quadruples' && !tupleInput.validate()) {
+  if (mode === 'quadruples' && tupleStyle.value === 'fields' && !tupleInput.validate()) {
     announce('Completa los cuatro campos de cada cuádruplo.', 'empty');
     return;
   }
   if (!currentSource().trim()) {
     announce(mode === 'java' ? 'Escribe o pega código Java.' : 'Escribe o pega tus cuádruplos.', 'empty');
-    sourceInput.setAttribute('aria-invalid', 'true');
-    sourceInput.focus();
+    activeText().setAttribute('aria-invalid', 'true');
+    activeText().focus();
     return;
   }
   sourceInput.removeAttribute('aria-invalid');
+  tupleText.removeAttribute('aria-invalid');
   busy(true);
   announce('Analizando…', 'working');
   const requestId = revision;
@@ -140,9 +146,15 @@ form.addEventListener('submit', (event) => {
 // Prepare local application files without delaying the editor or analysis.
 registerCacheWorker();
 
+function updateEntryView() {
+  document.querySelector('#source-code').closest('.editor').hidden = mode !== 'java';
+  document.querySelector('#quadruple-entry-options').hidden = mode === 'java';
+  document.querySelector('#quadruple-input').hidden = mode === 'java' || tupleStyle.value !== 'fields';
+  document.querySelector('#quadruple-text-editor').hidden = mode === 'java' || tupleStyle.value !== 'text';
+  clearAnalysis();
+}
 modeSelect.addEventListener('change', () => {
   mode = modeSelect.value;
-  document.querySelector('.editor').hidden = mode !== 'java';
-  document.querySelector('#quadruple-input').hidden = mode === 'java';
-  clearAnalysis();
+  updateEntryView();
 });
+tupleStyle.addEventListener('change', updateEntryView);

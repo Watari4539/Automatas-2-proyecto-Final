@@ -51,6 +51,18 @@
             <span id="source-metrics">0 líneas · 0 caracteres</span>
           </div>
         </div>
+        <div id="quadruple-entry-options" class="input-mode" hidden>
+          <label for="quadruple-entry-style">Formato de entrada</label>
+          <select id="quadruple-entry-style">
+            <option value="fields">Campos</option>
+            <option value="text">Texto libre</option>
+          </select>
+          <span class="tuple-hint">Cada formato conserva su propio borrador.</span>
+        </div>
+        <section id="quadruple-text-editor" class="editor" hidden>
+          <div class="editor-header"><label for="quadruple-text">Cuádruplos en texto</label></div>
+          <textarea id="quadruple-text" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off" aria-label="Cuádruplos en texto" placeholder="1.- (99, +, 10, 109)&#10;2.- ([1], /, 1, 109)"></textarea>
+        </section>
         <section id="quadruple-input" class="tuple-editor" aria-label="Editor de cuádruplos" hidden></section>
         <div class="form-actions">
           <button id="generate-button" type="submit">Generar <span aria-hidden="true">↗</span></button>
