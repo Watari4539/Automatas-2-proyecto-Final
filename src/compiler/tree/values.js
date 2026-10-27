@@ -12,6 +12,28 @@ export function typedValue(type, value, constant = false) {
   return { type, value, constant };
 }
 
+// Symbolic values are data, never executable source. Primitive metadata survives workers.
+export function symbolicValue(type, expression, precedence = 4) {
+  if (expression.length > MAX_STRING_VALUE_LENGTH) fail('EVAL_VALUE_LIMIT', 'La expresión simbólica supera 100 000 caracteres.');
+  return { type, value: expression, constant: false, symbolic: true, precedence };
+}
+function symbolicOperand(value, precedence, right = false) {
+  const text = value.symbolic ? value.value : value.type === 'char'
+    ? String(value.value.charCodeAt(0)) : NUMERIC.has(value.type) ? String(value.value) : formatValue(value);
+  return value.symbolic && (value.precedence < precedence || right && value.precedence === precedence)
+    ? '(' + text + ')' : text;
+}
+function symbolicBinary(operator, left, right, type) {
+  if (!['+', '-', '*', '/'].includes(operator)) fail('EVAL_OPERATOR', 'Este operador aún no tiene regla de evaluación.');
+  const precedence = ['+', '-'].includes(operator) ? 1 : 2;
+  const a = type === 'String' && !left.symbolic ? formatValue(left) : symbolicOperand(left, precedence);
+  const b = type === 'String' && !right.symbolic ? formatValue(right) : symbolicOperand(right, precedence, true);
+  // Only unambiguous numeric coefficients use implicit multiplication.
+  const expression = operator === '*' && !left.symbolic && NUMERIC.has(left.type) && right.symbolic && right.value === 'x'
+    ? a + b : a + operator + b;
+  return symbolicValue(type, expression, precedence);
+}
+
 function decodeQuoted(text) {
   const inner = text.slice(1, -1);
   return inner.replace(/\\(u+[0-9a-fA-F]{4}|[0-3][0-7]{0,2}|[4-7][0-7]?|[btnfrs"'\\])/g, (_, escape) => {
@@ -81,6 +103,10 @@ export function convertValue(value, target, mode = 'assignment') {
     }
     if (!permitted) fail('EVAL_INCOMPATIBLE_TYPE', `La conversión de ${value.type} a ${target} requiere un cast válido.`);
   }
+  if (value.symbolic) {
+    if (mode === 'cast') return symbolicValue(target, '(' + target + ')(' + value.value + ')');
+    return symbolicValue(target, value.value, value.precedence);
+  }
   let number = numeric(value);
   if (INTEGRAL.has(target)) {
     if (typeof number === 'number') {
@@ -120,6 +146,7 @@ function quoted(value, quote) {
   return quote + escaped + quote;
 }
 export function formatValue(value) {
+  if (value.symbolic) return value.value;
   if (value.type === 'String') return quoted(value.value, '"');
   if (value.type === 'char') return quoted(value.value, "'");
   if (value.type === 'float') return decimalText(value.value, true) + 'f';
@@ -137,6 +164,11 @@ function stringValue(value) {
 
 export function binaryValue(operator, left, right) {
   const constant = left.constant && right.constant;
+  if (left.symbolic || right.symbolic) {
+    const string = operator === '+' && (left.type === 'String' || right.type === 'String');
+    if (!string && (!NUMERIC.has(left.type) || !NUMERIC.has(right.type))) fail('EVAL_OPERANDS', 'La operación aritmética requiere dos valores numéricos.');
+    return symbolicBinary(operator, left, right, string ? 'String' : promoted({ name: left.type }, { name: right.type }));
+  }
   if (operator === '+' && (left.type === 'String' || right.type === 'String')) {
     const a = stringValue(left);
     const b = stringValue(right);

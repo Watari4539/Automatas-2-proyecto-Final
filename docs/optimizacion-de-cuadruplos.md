@@ -120,3 +120,11 @@ El selector superior inicia siempre en Código Java. El modo Cuádruplos acepta 
 La secuencia se considera completa: PC solo recibe evidencia para IDs con una única asignación en ella y sigue requiriendo procedencia constante. Se conservan por separado ambos borradores mientras la página está abierta. Cambiar de modo cancela el trabajo y limpia las salidas. En modo alternativo solo se muestran Optimización y Resultado final; no se generan tablas de símbolos/errores Java, árbol o tres direcciones.
 
 El parser no ejecuta texto como código. Comprueba límites, registros anteriores, estructura y resultados calculables. La ejecución usa el Worker con el mismo respaldo local que el modo Java. Inventario offline regenerado; pruebas de parser e integración visual verificadas.
+
+### Refuerzo tras pruebas adversas
+
+En la entrada directa, los operandos de cálculo y los valores de asignación/RTN/SOUT deben ser literales o referencias anteriores `[n]`. Un ID se admite como destino de asignación/RTN o identidad estructural de un acceso, pero no como valor implícito: no se elimina su definición dejando un uso directo sin resolver. Los nombres desconocidos tampoco permiten certificar un cálculo arbitrario.
+
+Las llamadas externas con argumentos se rechazan explícitamente en este modo hasta disponer de un parser estructurado para ellos; las llamadas sin argumentos como `random()` siguen admitidas. Esto impide esconder referencias inválidas o conservar referencias eliminadas dentro de texto opaco. El modo Java mantiene su soporte existente de llamadas.
+
+Se admiten los mínimos decimales firmados de int y long en la entrada directa, conservando el rechazo de magnitudes fuera de rango. Pruebas de regresión incorporadas para estos casos; esta corrección no amplía el desarrollo de operadores unarios del árbol Java ni cambia la política académica de valores no finitos.

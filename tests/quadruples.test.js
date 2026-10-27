@@ -35,7 +35,7 @@ test('Viernes coincide exactamente con los 15 registros y el cierre acordados', 
   assert.notEqual(assignments[0].nodeId, assignments[1].nodeId);
   assert.deepEqual(assignments.map(r => r.right.number), [5, 6]);
   assert.equal(result.records[12].left.symbolId, 'ID3');
-  assert.equal(result.records[14].result.display, '12.0');
+  assert.equal(result.records[14].result.display, '6*(int)(x*2)+(int)(x*2)/3');
 });
 
 test('no muta el árbol ni sus valores; registros serializables por structuredClone', () => {

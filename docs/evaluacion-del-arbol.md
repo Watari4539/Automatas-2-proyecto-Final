@@ -4,7 +4,13 @@ Estado: punto 6 implementado en `src/compiler/tree/evaluation.js` y `values.js`.
 
 ## Regla escolar de Math.random
 
-El usuario indicó expresamente: **«que dé siempre 1»**. En este proyecto `Math.random()` produce siempre el double `1.0`, token `VTD`. Se aplica tanto a copias de una inicialización como a llamadas distintas. No se usa ningún generador aleatorio ni se pretende reproducir la distribución de Java.
+Desde el cambio de octubre de 2026, `Math.random()` produce el símbolo `x`, tipo double y token VTD. Sustituye la regla anterior de 1.0. No se genera ningún número aleatorio.
+
+El valor lleva `symbolic: true`, `constant: false` y una expresión textual limitada a 100 000 caracteres. Las operaciones propagan expresiones con paréntesis: `5x`, `5+x`, `10/(x+2)`. Los casts conservan su significado, por ejemplo `(int)(x*2)`; no se inventa un entero concreto. Los tipos y tokens se mantienen separados del texto.
+
+Árbol, cuádruplos, retornos y SOUT transportan el mismo resultado simbólico. Tres direcciones conserva sus registros y temporales. FO y PC siguen exigiendo operandos constantes: un resultado simbólico no es un literal ni evidencia de constancia. Las llamadas distintas conservan sus registros separados aunque ambas se muestren como `x`; no se simplifica `x-x` ni se fusionan llamadas por su texto.
+
+La entrada temporal de cuádruplos admite `x` en Math.random y expresiones derivadas que coincidan exactamente con el formato calculado, sin interpretar código arbitrario.
 
 ## API y resultado
 
@@ -35,13 +41,13 @@ Por ejemplo, `3` usa VTE; `3.0`, VTD; `3.0f`, VTF; `'A'`, VTC; `"texto"`, VTS. L
 
 Los nodos llevan ahora `declaredType` y `constantVariable`, obtenidos durante la construcción. Permiten convertir asignaciones, parámetros y retornos sin adivinar tipos a partir de sus valores. Los símbolos y sus IDs no se vuelven a enumerar.
 
-El árbol incorpora un resumen `evaluation` con `complete`, `evaluatedOperationOrder` y `randomPolicy: 'fixed-one'`. Su orden de operaciones exitosas coincide con `numbering.operationOrder` cuando no hay fallos.
+El árbol incorpora un resumen `evaluation` con `complete`, `evaluatedOperationOrder` y `randomPolicy: 'symbolic-x'`. Su orden de operaciones exitosas coincide con `numbering.operationOrder` cuando no hay fallos.
 
 ## Recorrido
 
 Se procesa cada nivel completo, desde abajo hacia arriba y de izquierda a derecha. Las operaciones conservan los números del punto 5. También se propagan valores a través de nodos sin número, como referencias de parámetros y llamadas, para que sus padres tengan disponibles los operandos. SOUT y la raíz no reciben un valor anotado como si fueran operaciones numéricas.
 
-Las ramas repetidas se evalúan individualmente. La regla fija de random garantiza resultados consistentes en sus copias. Cada llamada mantiene sus parámetros y su contexto. No se ejecuta un programa Java: se interpretan exclusivamente nodos del subconjunto construido.
+Las ramas repetidas se evalúan individualmente. La representación simbólica conserva las dependencias de random en sus copias. Cada llamada mantiene sus parámetros y su contexto. No se ejecuta un programa Java: se interpretan exclusivamente nodos del subconjunto construido.
 
 ## Reglas de valores
 

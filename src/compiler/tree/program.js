@@ -1,3 +1,4 @@
+import { wholePrimitiveCast } from './casts.js';
 import { prepareExpressionSource } from './source-context.js';
 import { createExpressionEngine, expressionLimits } from './expression-engine.js';
 import { argumentRanges, readMethodStatements } from './methods.js';
@@ -50,15 +51,8 @@ export function buildProgramTree(source, options = {}) {
       if (trigger.start + 1 === trigger.end) stopTree('unsupported', 'TREE_RETURN_VALUE', 'Se necesita un return con expresión para desarrollar esta llamada.', tokens[trigger.start]);
       let start = trigger.start + 1, end = trigger.end, castType = null;
       while (tokens[start]?.lexeme === '(' && model.pairs.get(start) === end - 1) { start++; end--; }
-      // Only a cast covering the entire return value belongs to RTN.
-      // Casts inside a larger expression retain their own scope.
-      if (tokens[start]?.lexeme === '(' && tokens[start + 1]?.token === 'TD' && tokens[start + 2]?.lexeme === ')') {
-        const operand = start + 3;
-        if (operand === end - 1 || (tokens[operand]?.lexeme === '(' && model.pairs.get(operand) === end - 1)) {
-          castType = tokens[start + 1].lexeme;
-          start = operand;
-        }
-      }
+      const cast = wholePrimitiveCast(tokens, model.pairs, start, end);
+      if (cast) { start = cast.start; end = cast.end; castType = cast.castType; }
       const value = engine.expression(start, end, depth + 2, trigger.start, frame);
       const rtn = engine.addNode({ kind: 'return', text: 'RTN', children: [value], castType, source: tokens[trigger.start] }, frame);
       return engine.addNode({ kind: 'call', symbolId: idsByKey.get(method.key), children: [rtn], source: at }, frame);
@@ -67,13 +61,7 @@ export function buildProgramTree(source, options = {}) {
     const hooks = {
       calls: true,
       initializer(range) {
-        const { start, end } = range;
-        if (tokens[start]?.lexeme !== '(' || tokens[start + 1]?.token !== 'TD' || tokens[start + 2]?.lexeme !== ')') return range;
-        const operand = start + 3;
-        if (!(operand === end - 1 || (tokens[operand]?.lexeme === '(' && model.pairs.get(operand) === end - 1))) {
-          stopTree('unsupported', 'TREE_CAST_SCOPE', 'Solo se anota junto al ID un cast que abarque todo el inicializador.', tokens[start]);
-        }
-        return { start: operand, end, castType: tokens[start + 1].lexeme };
+        return wholePrimitiveCast(tokens, model.pairs, range.start, range.end) ?? range;
       },
       parameter(symbol, at, depth, useIndex, frame) {
         const argument = frame?.arguments.get(symbol.key);

@@ -9,7 +9,7 @@ function map(value, fn) {
   return fn(value.kind === 'externalCall' ? { ...value, args: value.args.map(arg => map(arg, fn)) } : clone(value));
 }
 const literal = o => o.kind !== 'literal' ? null : o.type ? {type: o.type, value: o.value, constant: true} : readLiteral(o.text);
-const sameValue = (a, b) => !!a && !!b && a.type === b.type && Object.is(a.value, b.value);
+const sameValue = (a, b) => !!a && !!b && a.type === b.type && !!a.symbolic === !!b.symbolic && Object.is(a.value, b.value);
 const pure = new Set(['+', '-', '*', '/']);
 
 /** Replays the explanation independently and verifies the final graph and values.

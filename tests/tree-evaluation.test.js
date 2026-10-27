@@ -34,18 +34,18 @@ test('referencia A: los ocho resultados y tokens coinciden con el dibujo', () =>
   assert.deepEqual(result.tree.evaluation.evaluatedOperationOrder, result.tree.numbering.operationOrder);
 });
 
-test('Viernes: random siempre 1.0, cast 2, división entera 0 y return double 12.0', () => {
+test('Viernes: random simbólico conserva casts y tipos hasta el retorno', () => {
   const source = readFileSync(new URL('../fixtures/ArbolViernes.java', import.meta.url), 'utf8');
   const built = buildProgramTree(source);
   const result = evaluateTree(built.tree);
   assert.equal(result.status, 'success', JSON.stringify(result.diagnostics));
   assert.deepEqual(operationValues(result).map(value => [value.display, value.token]), [
-    ['6', 'VTE'], ['1.0', 'VTD'], ['1.0', 'VTD'], ['6', 'VTE'],
-    ['2.0', 'VTD'], ['2.0', 'VTD'], ['2', 'VTE'], ['2', 'VTE'],
-    ['12', 'VTE'], ['0', 'VTE'], ['12', 'VTE'], ['12.0', 'VTD'], ['12.0', 'VTD'],
+    ['6', 'VTE'], ['x', 'VTD'], ['x', 'VTD'], ['6', 'VTE'],
+    ['x*2', 'VTD'], ['x*2', 'VTD'], ['(int)(x*2)', 'VTE'], ['(int)(x*2)', 'VTE'],
+    ['6*(int)(x*2)', 'VTE'], ['(int)(x*2)/3', 'VTE'], ['6*(int)(x*2)+(int)(x*2)/3', 'VTE'], ['6*(int)(x*2)+(int)(x*2)/3', 'VTD'], ['6*(int)(x*2)+(int)(x*2)/3', 'VTD'],
   ]);
   assert.deepEqual(evaluateTree(built.tree), result);
-  assert.ok(result.tree.nodes.filter(node => node.text === 'random()').every(node => node.evaluation.value === 1));
+  assert.ok(result.tree.nodes.filter(node => node.text === 'random()').every(node => node.evaluation.value === 'x'));
   assert.deepEqual(result.tree.contexts, built.tree.contexts);
   assert.deepEqual(result.tree.symbols, built.tree.symbols);
 });

@@ -1,3 +1,4 @@
+import { wholePrimitiveCast } from './casts.js';
 import { createTreeBuilder } from './model.js';
 import { initializerRange } from './source-context.js';
 import { stopTree } from './diagnostics.js';
@@ -71,13 +72,10 @@ export function createExpressionEngine(context, { maxNodes, maxDepth }, hooks = 
     while (tokens[start]?.lexeme === '(' && model.pairs.get(start) === end - 1) { start++; end--; }
     if (start >= end) stopTree('invalid', 'TREE_EXPECTED_EXPRESSION', 'Se esperaba una expresión con un valor u operandos.', tokens[start] ?? tokens[end - 1]);
 
-    // A leading primitive cast binds to one operand, before exterior binary operators.
-    if (hooks.calls && tokens[start]?.lexeme === '(' && tokens[start + 1]?.token === 'TD' && tokens[start + 2]?.lexeme === ')') {
-      const operand = start + 3;
-      if (operand === end - 1 || (tokens[operand]?.lexeme === '(' && model.pairs.get(operand) === end - 1)) {
-        const child = expression(operand, end, depth + 1, useIndex, frame);
-        return addNode({ kind: 'conversion', text: tokens[start + 1].lexeme, children: [child], source: tokens[start] }, frame);
-      }
+    const cast = hooks.calls && wholePrimitiveCast(tokens, model.pairs, start, end);
+    if (cast) {
+      const child = expression(cast.start, cast.end, depth + 1, useIndex, frame);
+      return addNode({ kind: 'conversion', text: cast.castType, children: [child], source: tokens[start] }, frame);
     }
 
     const custom = hooks.atom?.(start, end, depth, useIndex, frame);

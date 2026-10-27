@@ -94,7 +94,7 @@ export function validateThreeAddress(tree, quadruples, data) {
       if (previous) for (const n of previous.producers) {
         const stillNeeded = remaining.get(n) > reads.filter(read => read === n).length;
         const value = records[n - 1];
-        const equivalent = previous.contextId === record.contextId && value.result.status === 'available' && record.result.status === 'available' && value.result.type === record.result.type && Object.is(value.result.value, record.result.value);
+        const equivalent = previous.contextId === record.contextId && value.result.status === 'available' && record.result.status === 'available' && value.result.type === record.result.type && !!value.result.symbolic === !!record.result.symbolic && Object.is(value.result.value, record.result.value);
         if (stillNeeded && !equivalent) return reject('THREE_LIVE_VARIABLE', 'Se sobrescribiría una versión de un ID que aún tiene consumidores.', line);
       }
       consume(reads);

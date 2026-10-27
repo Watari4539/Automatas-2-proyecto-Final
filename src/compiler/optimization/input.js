@@ -1,4 +1,4 @@
-import { readLiteral, annotation, convertValue, binaryValue } from '../tree/values.js';
+import { readLiteral, symbolicValue, annotation, convertValue, binaryValue } from '../tree/values.js';
 import { optimizeQuadruples } from './index.js';
 
 function splitFields(text) {
@@ -17,6 +17,10 @@ function splitFields(text) {
   return fields;
 }
 function value(text) {
+  // Decimal minimums are valid signed values although their positive magnitude
+  // is one larger than the corresponding maximum.
+  if (/^-2_?1_?4_?7_?4_?8_?3_?6_?4_?8$/.test(text)) return {type:'int', value:-2147483648n, constant:true};
+  if (/^-9_?2_?2_?3_?3_?7_?2_?0_?3_?6_?8_?5_?4_?7_?7_?5_?8_?0_?8[lL]$/.test(text)) return {type:'long', value:-9223372036854775808n, constant:true};
   if (/^-[0-9]/.test(text)) { const v = readLiteral(text.slice(1)); return {...v, value: -v.value}; }
   return readLiteral(text);
 }
@@ -37,7 +41,12 @@ export function analyzeQuadrupleInput(source) {
       if (/^ID[1-9]\d*\(\)$/.test(text)) return {kind:'constructor',symbolId:text.slice(0,-2)};
       if (text === 'PMAIN') return {kind:'main'};
       try { const v=value(text), a=annotation(v); return {kind:'literal',text:a.display,type:v.type,value:v.value,token:a.token}; }
-      catch { if (/^[\p{L}_$][\p{L}\p{N}_$]*(?:\([^\n]*\))?$/u.test(text)) return {kind:'external',text}; }
+      catch {
+        if (/^[\p{L}_$][\p{L}\p{N}_$]*\(.*\)$/u.test(text) && !text.endsWith('()')) {
+          throw new Error('Las llamadas con argumentos no están admitidas en esta entrada. No se pueden tratar sus referencias como texto.');
+        }
+        if (/^[\p{L}_$][\p{L}\p{N}_$]*(?:\(\))?$/u.test(text)) return {kind:'external',text};
+      }
       throw new Error(`Operando no reconocido: ${text}`);
     };
     for (const raw of source.split(/\r\n|\r|\n/)) {
@@ -51,14 +60,21 @@ export function analyzeQuadrupleInput(source) {
       const [leftText,operator,rightText,resultText]=splitFields(match[2]);
       if (!['+','-','*','/','=','RTN','.','SOUT'].includes(operator)) throw new Error(`Operador no admitido: ${operator}`);
       const left=operand(leftText), right=operand(rightText);
-      const result={status:'available',...annotation(value(resultText))};
+      let result;
       if (operator === '=' && left.kind !== 'symbol' || operator === 'RTN' && left.kind !== 'symbol' || operator === 'SOUT' && left.kind !== 'main') throw new Error('Destino inválido para asignación, RTN o SOUT.');
       const read = o => o.kind === 'literal' ? o : o.kind === 'register' ? records[o.number-1].result : null;
       const a=read(left), b=read(right);
+      if (['+','-','*','/'].includes(operator) && (!a || !b) || ['=','RTN','SOUT'].includes(operator) && !b) {
+        throw new Error('Usa un literal o un registro anterior [n] como valor; los IDs y nombres externos no se resuelven como valores directamente.');
+      }
       let computed=null;
+      const random = operator === '.' && left.kind === 'external' && left.text === 'Math' && right.kind === 'external' && ['random', 'random()'].includes(right.text);
+      if (random && resultText === 'x') computed = symbolicValue('double', 'x');
       if (['+','-','*','/'].includes(operator) && a && b) computed=binaryValue(operator,a,b);
-      if (['=','RTN'].includes(operator) && b) computed=convertValue(b,result.type,'cast');
+      if (['=','RTN'].includes(operator) && b) computed=b.symbolic ? b : convertValue(b,value(resultText).type,'cast');
       if (operator === 'SOUT' && b) computed=b;
+      result={status:'available',...annotation(computed?.symbolic ? computed : value(resultText))};
+      if (computed?.symbolic && result.display !== resultText) throw new Error('La expresión simbólica no coincide con los operandos.');
       if (computed && (computed.type !== result.type || !Object.is(computed.value,result.value))) throw new Error('El resultado no coincide con los operandos y su tipo.');
       records.push({number:records.length+1,nodeId:`input${records.length+1}`,contextId:'input',source:{line,column:1,start:0,end:raw.length},left,operator,right,result});
     }

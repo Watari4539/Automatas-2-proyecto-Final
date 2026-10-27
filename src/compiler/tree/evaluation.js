@@ -1,5 +1,5 @@
 import { numberTreeOperations } from './numbering.js';
-import { EvaluationError, readLiteral, typedValue, convertValue, binaryValue, annotation } from './values.js';
+import { EvaluationError, readLiteral, typedValue, symbolicValue, convertValue, binaryValue, annotation } from './values.js';
 
 const BLOCKED = Symbol('blocked');
 const fail = (code, message) => { throw new EvaluationError(code, message); };
@@ -28,7 +28,7 @@ export function evaluateTree(tree) {
     if (left?.marker === 'external' && left.name === 'Math') {
       if (right?.marker === 'externalCall' && right.name === 'random()') {
         // Regla escolar explícita: no usa el generador aleatorio de Java ni el del navegador.
-        const value = typedValue('double', 1, false);
+        const value = symbolicValue('double', 'x');
         nodes.get(node.children[1]).evaluation = annotation(value);
         return value;
       }
@@ -38,13 +38,16 @@ export function evaluateTree(tree) {
     }
     if (left?.marker === 'object' && scalar(right)) return { ...right, constant: false };
     if (left?.type === 'String' && right?.marker === 'externalCall' && right.name === 'length()') {
-      return typedValue('int', BigInt(left.value.length), false);
+      return left.symbolic ? symbolicValue('int', '(' + left.value + ').length()') : typedValue('int', BigInt(left.value.length), false);
     }
     if (left?.type === 'String' && right?.marker === 'externalCall' && ['substring()', 'charAt()'].includes(right.name)) {
       const args = right.args ?? [];
       const charAt = right.name === 'charAt()';
       if ((charAt && args.length !== 1) || (!charAt && ![1, 2].includes(args.length))) fail('EVAL_ARGUMENT_COUNT', 'Cantidad incorrecta de argumentos para el método de String.');
       if (args.some(arg => !['byte', 'short', 'char', 'int'].includes(arg?.type))) fail('EVAL_ARGUMENT_TYPE', 'Los índices de String deben ser enteros compatibles con int.');
+      if (left.symbolic || args.some(arg => arg.symbolic)) {
+        return symbolicValue(charAt ? 'char' : 'String', '(' + annotation(left).display + ').' + right.name.slice(0, -2) + '(' + args.map(arg => annotation(arg).display).join(',') + ')');
+      }
       const indexes = args.map(arg => arg.type === 'char' ? arg.value.charCodeAt(0) : Number(arg.value));
       const [start, end = left.value.length] = indexes;
       if (start < 0 || start > left.value.length || (charAt && start === left.value.length) || end < start || end > left.value.length) fail('EVAL_STRING_BOUNDS', 'El índice o intervalo está fuera de los límites de la cadena.');
@@ -114,7 +117,7 @@ export function evaluateTree(tree) {
   result.evaluation = {
     complete: diagnostics.length === 0,
     evaluatedOperationOrder,
-    randomPolicy: 'fixed-one',
+    randomPolicy: 'symbolic-x',
   };
   return { status: diagnostics.length ? 'partial' : 'success', tree: result, diagnostics };
 }

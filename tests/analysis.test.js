@@ -15,7 +15,7 @@ test('integración conserva tablas y genera Viernes con los mismos IDs y 13 oper
   assert.equal(treeAnalysis.layout.nodes[0].fullLabel, 'ID2\nPMAIN');
   assert.equal(treeAnalysis.layout.nodes.filter(n => n.operationNumber).length, 13);
   assert.deepEqual(result.errors, []);
-  assert.ok(treeAnalysis.layout.nodes.some(n => n.valueLines.join(' ') === '12.0 VTD'));
+  assert.ok(treeAnalysis.layout.nodes.some(n => n.valueLines.join('') === '6*(int)(x*2)+(int)(x*2)/3VTD'));
   assert.deepEqual(structuredClone(result), result);
 });
 
@@ -62,7 +62,7 @@ test('Viernes integra 15 cuádruplos validados sin renumerar las 13 operaciones 
   assert.deepEqual(q.validation, { valid: true, complete: true, diagnostics: [] });
   assert.equal(q.records.length, 15);
   assert.equal(q.records[12].left.symbolId, 'ID3');
-  assert.equal(q.records[14].result.display, '12.0');
+  assert.equal(q.records[14].result.display, '6*(int)(x*2)+(int)(x*2)/3');
   assert.equal(q.closure.classSymbolId, 'ID2');
   assert.equal(q.closure.target.number, 15);
   assert.equal(result.treeAnalysis.layout.nodes.filter(n => n.operationNumber).length, 13);

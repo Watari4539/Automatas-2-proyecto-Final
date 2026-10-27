@@ -1,3 +1,4 @@
+import { readLiteral, convertValue } from '../tree/values.js';
 import { JAVA_TYPES } from '../symbols/java-library.js';
 import { PRIMITIVES } from '../lexical/catalog.js';
 import { errorRow, shortName } from './diagnostics.js';
@@ -10,6 +11,9 @@ export function checkSemantics(program) {
   const unknown = () => ({ unknown: true });
   const classMap = new Map(program.classes.map(node => [node.name, node]));
   const verifiedTypes = new WeakSet();
+  const initializing = new WeakSet();
+  const initializedLocals = new WeakSet();
+  let assignmentTarget = null;
   let evaluationDepth = 0;
   let depthReported = false;
   function issue(code, at, title, message) {
@@ -54,6 +58,14 @@ export function checkSemantics(program) {
     const declarations = find(scope, node.name, ['declare', 'parameter', 'class'], node.at);
     if (declarations.length) {
       const item = declarations[0];
+      if (initializing.has(item) && item.scope.kind !== 'class') {
+        issue('UNINITIALIZED_LOCAL', node.at, 'Variable sin inicializar', `«${shortName(node.name)}» se utiliza dentro de su propio inicializador antes de recibir un valor.`);
+        return unknown();
+      }
+      if (item.kind === 'declare' && item.scope === scope && scope.kind !== 'class' && !scope.hasUnreviewed && node !== assignmentTarget && !initializedLocals.has(item)) {
+        issue('UNINITIALIZED_LOCAL', node.at, 'Variable sin inicializar', `«${shortName(node.name)}» se utiliza antes de recibir un valor. Declárala con un inicializador o asígnale un valor antes de leerla.`);
+        return nodeType(item);
+      }
       if (item.kind === 'class') return { classReference: item.name, name: item.name, dimensions: 0 };
       if (item.kind === 'declare' && item.scope.kind === 'class' && !item.isStatic && staticMethod(scope)) return instanceFieldError(node);
       return nodeType(item);
@@ -191,10 +203,10 @@ export function checkSemantics(program) {
     const numeric = !left.dimensions && !right.dimensions && NUMERIC.has(left.name) && NUMERIC.has(right.name);
     const boolean = left.name === 'boolean' && right.name === 'boolean' && !left.dimensions && !right.dimensions;
     if (!left.classReference && !right.classReference && op === '+' && (left.name === 'String' || right.name === 'String') && left.name !== 'void' && right.name !== 'void') return valueType('String');
-    if (['<', '>'].includes(op) && numeric) return valueType('boolean');
-    if (op === '==' && (numeric || boolean || (typeName(left) === typeName(right) && left.name !== 'void'))) return valueType('boolean');
-    if (['&', '|'].includes(op) && boolean) return valueType('boolean');
-    if (!numeric || left.classReference || right.classReference || (['&', '|'].includes(op) && !(INTEGRAL.has(left.name) && INTEGRAL.has(right.name)))) {
+    if (['<', '>', '<=', '>='].includes(op) && numeric) return valueType('boolean');
+    if (['==', '!='].includes(op) && (numeric || boolean || (typeName(left) === typeName(right) && left.name !== 'void'))) return valueType('boolean');
+    if (['&', '|', '^', '&&', '||'].includes(op) && boolean) return valueType('boolean');
+    if (['<','>','<=','>=','==','!=','&&','||'].includes(op) || !numeric || left.classReference || right.classReference || (['&', '|', '^'].includes(op) && !(INTEGRAL.has(left.name) && INTEGRAL.has(right.name)))) {
       issue('INVALID_OPERANDS', node.at, 'Operandos incompatibles', `El operador «${op}» no admite operandos de tipos ${shortName(typeName(left))} y ${shortName(typeName(right))} en esta combinación. La operación requiere tipos compatibles.`);
       return unknown();
     }
@@ -207,10 +219,13 @@ export function checkSemantics(program) {
         issue('INTEGER_DIVISION_BY_ZERO', node.at, 'División entera por cero', 'El divisor de esta operación entera es la constante cero. La división o el residuo no está definido para ese divisor.');
         return unknown();
       }
-      const operations = { '+': () => a + b, '-': () => a - b, '*': () => a * b, '/': () => a / b, '%': () => a % b, '&': () => a & b, '|': () => a | b };
+      const operations = { '+': () => a + b, '-': () => a - b, '*': () => a * b, '/': () => a / b, '%': () => a % b, '&': () => a & b, '|': () => a | b, '^': () => a ^ b };
       if (operations[op]) result.constant = operations[op]();
     }
-    return range(result, node.at);
+    if (result.name === 'float' && result.constant !== undefined) result.constant = Math.fround(result.constant);
+    // Non-finite floating operation results are representable; literals still
+    // pass through range checks. Preserve the academic integral overflow rule.
+    return INTEGRAL.has(result.name) ? range(result, node.at) : result;
   }
   function evaluate(node, scope) {
     if (++evaluationDepth > 120) {
@@ -228,11 +243,24 @@ export function checkSemantics(program) {
     if (node.kind === 'cast') {
       const source = evaluate(node.value, scope);
       if (source.unknown) return unknown();
-      if (!source.dimensions && ((NUMERIC.has(source.name) && NUMERIC.has(node.type)) || (source.name === 'boolean' && node.type === 'boolean'))) return valueType(node.type);
+      if (!source.dimensions && ((NUMERIC.has(source.name) && NUMERIC.has(node.type)) || (source.name === 'boolean' && node.type === 'boolean'))) {
+        if (source.constant !== undefined) {
+          const converted = convertValue({type: source.name, value: source.name === 'char' ? String.fromCharCode(Number(source.constant)) : source.constant, constant: true}, node.type, 'cast');
+          return valueType(node.type, {constant: converted.type === 'char' ? BigInt(converted.value.charCodeAt(0)) : converted.value});
+        }
+        return valueType(node.type);
+      }
       issue('INVALID_CAST', node.at, 'Conversión incompatible', `No se puede convertir ${typeName(source)} a ${node.type} mediante este cast.`);
       return unknown();
     }
-    if (node.kind === 'literal') return range(literalType(node.at), node.at);
+    if (node.kind === 'literal') {
+      const result = literalType(node.at);
+      if (node.at.token === 'VTC') {
+        try { result.constant = BigInt(readLiteral(node.at.lexeme).value.charCodeAt(0)); } catch { return unknown(); }
+      }
+      if (result.name === 'float' && result.constant !== undefined) result.constant = Math.fround(result.constant);
+      return range(result, node.at);
+    }
     if (node.kind === 'name') return named(node, scope);
     if (node.kind === 'member') return member(node, scope);
     if (node.kind === 'call') return call(node, scope);
@@ -292,13 +320,18 @@ export function checkSemantics(program) {
       }
       if (node.kind === 'declare') validateType(node.type);
       if (node.invalid) continue;
-      if (node.kind === 'declare' && node.value) assign(node.type, evaluate(node.value, scope), node.at);
+      if (node.kind === 'declare' && node.value) {
+        initializing.add(node);
+        try { assign(node.type, evaluate(node.value, scope), node.at); initializedLocals.add(node); } finally { initializing.delete(node); }
+      }
       else if (node.kind === 'assign') {
-        const target = evaluate(node.target, scope);
+        assignmentTarget = node.target;
+        let target;
+        try { target = evaluate(node.target, scope); } finally { assignmentTarget = null; }
         const source = evaluate(node.value, scope);
         if (!target.unknown) {
           if (!target.declaration) issue('NOT_ASSIGNABLE', node.at, 'Destino no asignable', 'El destino no es una variable modificable. Una asignación debe guardar el valor en una variable declarada.');
-          else assign(target, source, node.at);
+          else { assign(target, source, node.at); initializedLocals.add(target.declaration); }
         }
       } else if (node.kind === 'expression') evaluate(node.value, scope);
       else if (node.kind === 'return' && scope.method) {

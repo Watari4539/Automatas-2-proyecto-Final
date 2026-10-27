@@ -21,7 +21,7 @@ export function createMachine(records, target) {
     return cell.contextId === record.contextId && cell.producers.every(n => {
       const previous = records[n - 1];
       return previous.result.status === 'available' && record.result.status === 'available'
-        && previous.result.type === record.result.type && Object.is(previous.result.value, record.result.value);
+        && previous.result.type === record.result.type && !!previous.result.symbolic === !!record.result.symbolic && Object.is(previous.result.value, record.result.value);
     });
   }
   function ready(state, index) {

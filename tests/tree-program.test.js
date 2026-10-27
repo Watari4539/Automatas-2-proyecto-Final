@@ -141,8 +141,9 @@ test('cast anotado junto al ID: no crea un nodo de conversión ni pierde la mult
   assert.equal(tree.nodes.filter(node => node.castType === 'int').length, 2);
   assert.equal(tree.nodes.filter(node => node.kind === 'conversion').length, 0);
   const result = buildProgramTree(simple('', 'int x=(int)2.5+3; System.out.print(x);'));
-  assert.equal(result.status, 'unsupported');
-  assert.equal(result.diagnostics[0].code, 'TREE_CAST_SCOPE');
+  assert.equal(result.status, 'success');
+  assert.equal(result.tree.nodes.filter(node => node.kind === 'conversion').length, 1);
+  assert.equal(result.tree.nodes.filter(node => node.castType).length, 0);
 });
 
 test('las llamadas recursivas directas e indirectas se interrumpen', () => {

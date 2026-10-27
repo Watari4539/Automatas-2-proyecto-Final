@@ -125,14 +125,14 @@ export function parseForErrors(tokens, invalidTokens, eof) {
     let node;
     if (['++', '--', '~', '!', '+', '-'].includes(token.lexeme)) {
       take();
-      const operand = expression(7);
+      const operand = expression(10);
 
       node = { kind: 'unary', operator: token.lexeme, operand, at: token };
     } else if (is('(') && tokens[position + 1]?.token === 'TD' && tokens[position + 2]?.lexeme === ')') {
       take();
       const type = take();
       take();
-      node = { kind: 'cast', type: type.lexeme, value: expression(7), at: token };
+      node = { kind: 'cast', type: type.lexeme, value: expression(10), at: token };
     } else if (accept('(')) {
       const value = expression();
       expect(')', 'EXPC', 'PC («)»)');
