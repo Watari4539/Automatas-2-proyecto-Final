@@ -9,6 +9,8 @@ function map(value, fn) {
   return fn(value.kind === 'externalCall' ? { ...value, args: value.args.map(arg => map(arg, fn)) } : clone(value));
 }
 const literal = o => o.kind !== 'literal' ? null : o.type ? {type: o.type, value: o.value, constant: true} : readLiteral(o.text);
+const constantLength = r => r.operator === '.' && literal(r.left)?.type === 'String' &&
+  !r.left.symbolic && r.right.kind === 'external' && r.right.text === 'length()';
 const sameValue = (a, b) => !!a && !!b && a.type === b.type && !!a.symbolic === !!b.symbolic && Object.is(a.value, b.value);
 const pure = new Set(['+', '-', '*', '/']);
 
@@ -54,7 +56,7 @@ export function validateOptimization(input, output, { constantAssignments = [] }
       check(event.sequence === index + 1, 'Secuencia de eventos inválida.');
       const row = active.find(r => r.id === event.recordId);
       check(row && event.action === 'remove', 'Evento sin registro activo o acción soportada.');
-      check(!PROTECTED_OPERATORS.includes(row.operator), 'Se eliminó una operación protegida.');
+      check(!PROTECTED_OPERATORS.includes(row.operator) || event.technique === 'FO' && constantLength(row), 'Se eliminó una operación protegida.');
       check(equal(project(row), event.before) && event.after === null, 'Estado intermedio incorrecto.');
       check(typeof event.derived === 'boolean' && Array.isArray(event.causedBy), 'Derivación inválida.');
       check(event.causedBy.every(n => Number.isInteger(n) && n > 0 && n < event.sequence), 'Causa futura o inexistente.');
@@ -62,12 +64,12 @@ export function validateOptimization(input, output, { constantAssignments = [] }
       const a = literal(row.left), b = literal(row.right);
       const replacement = event.replacement;
       const original = originals.get(row.id);
-      if (event.technique === 'FO') check(event.derived === !(literal(original.left) && literal(original.right)), 'Etiqueta FOD incorrecta.');
+      if (event.technique === 'FO') check(event.derived === !(constantLength(original) || pure.has(original.operator) && literal(original.left) && literal(original.right)), 'Etiqueta FOD incorrecta.');
       if (event.technique === 'PC') check(event.derived === !literal(original.right), 'Etiqueta PCD incorrecta.');
       if (!event.derived) check(event.causedBy.length === 0, 'Técnica directa con causas derivadas.');
       if (event.technique === 'FO') {
-        check(pure.has(row.operator) && a && b, 'Folding sin operandos constantes.');
-        check(sameValue(binaryValue(row.operator, a, b), literal(replacement)), 'Folding cambia el resultado o tipo.');
+        check(constantLength(row) || pure.has(row.operator) && a && b, 'Folding sin operandos constantes.');
+        check(sameValue(constantLength(row) ? {type:'int',value:BigInt(a.value.length)} : binaryValue(row.operator, a, b), literal(replacement)), 'Folding cambia el resultado o tipo.');
       } else if (event.technique === 'PC') {
         check(row.operator === '=' && evidence.has(row.id) && b, 'Propagación sin evidencia de constancia.');
         check(sameValue(convertValue(b, row.result.type, 'cast'), literal(replacement)), 'PC pierde conversión de tipo.');

@@ -21,7 +21,7 @@ test('ejemplo completo con X.0, coeficientes y notación de clase', () => {
  assert.equal(r.optimizationAnalysis.validation.valid,true);
  assert.equal(r.quadrupleAnalysis.records.at(-1).result.display,'X.0');
  assert.equal(r.optimizationAnalysis.records.at(-1).result.display,'X.0');
- assert.deepEqual(r.optimizationAnalysis.records.filter(r=>['.','RTN','SOUT'].includes(r.operator)).map(r=>r.operator),['.','.','RTN','.','SOUT']);
+ assert.deepEqual(r.optimizationAnalysis.records.filter(r=>['.','RTN','SOUT'].includes(r.operator)).map(r=>r.operator),['.','RTN','.','SOUT']);
  assert.ok(r.optimizationAnalysis.events.some(e=>e.technique==='FO'));
  assert.ok(!r.optimizationAnalysis.events.some(e=>e.recordId==='q7'));
 });

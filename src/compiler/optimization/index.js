@@ -76,6 +76,12 @@ export function optimizeQuadruples(input, { constantAssignments = [], hasSourceE
       if (r.operator === '+' && is(a, 0)) operand = r.right;
       return operand && typeOf(operand) === r.result.type ? copy(operand) : null;
     };
+    const lengthValue = r => {
+      const receiver = literal(r.left);
+      return r.operator === '.' && receiver?.type === 'String' && !receiver.symbolic &&
+        r.right.kind === 'external' && r.right.text === 'length()'
+        ? {type: 'int', value: BigInt(receiver.value.length), constant: true} : null;
+    };
     const constantPair = r => PURE.has(r.operator) && literal(r.left) && literal(r.right);
     let changed;
     do {
@@ -83,12 +89,15 @@ export function optimizeQuadruples(input, { constantAssignments = [], hasSourceE
       const seen = new Map();
       for (const r of [...active]) {
         const id = r.identity.id, original = originals.get(id);
-        if (PROTECTED_OPERATORS.includes(r.operator) || !PURE.has(r.operator) && r.operator !== '=') { seen.clear(); continue; }
+        const length = lengthValue(r);
+        if (!length && (PROTECTED_OPERATORS.includes(r.operator) || !PURE.has(r.operator) && r.operator !== '=')) { seen.clear(); continue; }
         let technique, value, derived = false;
         try {
           value = simplify(r);
           if (value) { technique = 'SE'; derived = !simplify(original); }
-          else if (constantPair(r)) {
+          else if (length) {
+            value = replacement(length); technique = 'FO'; derived = !lengthValue(original);
+          } else if (constantPair(r)) {
             value = replacement(binaryValue(r.operator, literal(r.left), literal(r.right)));
             technique = 'FO'; derived = !constantPair(original);
           } else if (r.operator === '=' && evidence.has(id) && literal(r.right)) {

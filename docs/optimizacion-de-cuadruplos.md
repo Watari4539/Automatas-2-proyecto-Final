@@ -142,3 +142,12 @@ Se normalizan comillas tipográficas y se admite la abreviatura
 length(); los accesos a métodos mediante IDs propagan su retorno.
 Expresiones simbólicas fuera de esa equivalencia limitada siguen requiriendo
 el formato exacto del evaluador.
+
+### Excepción para length() constante
+El punto sigue protegido salvo el acceso sin argumentos `length()` sobre un
+literal String. En ese caso se aplica FO, se elimina el registro y se sustituye
+cada referencia por su longitud entera (unidades UTF-16, igual que Java).
+Si la cadena pasa a ser literal por PC o FO previos, corresponde FOD.
+No se usa solamente el resultado anotado como evidencia: el receptor debe ser
+una cadena constante. Math.random(), cadenas simbólicas y otros accesos siguen
+protegidos.
