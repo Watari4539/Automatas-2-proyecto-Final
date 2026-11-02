@@ -1,5 +1,3 @@
-import { createQuadrupleInput } from './src/ui/quadruples/input.js';
-import { analyzeQuadrupleInput } from './src/compiler/optimization/input.js';
 import { analyzeProgram } from './src/compiler/analysis.js';
 import { registerCacheWorker } from './src/pwa/register.js';
 import { createSourceHighlighting } from './src/ui/source-highlighting.js';
@@ -9,12 +7,6 @@ import { createErrorTableView } from './src/ui/error-table.js';
 import { createQuadruplesView } from './src/ui/quadruples/view.js';
 import { createThreeAddressView } from './src/ui/three-address/view.js';
 import { createTreeResultsView } from './src/ui/tree/results.js';
-
-const modeSelect = document.querySelector('#input-mode');
-let mode = 'java';
-const tupleStyle = document.querySelector('#quadruple-entry-style');
-const tupleText = document.querySelector('#quadruple-text');
-const activeText = () => mode === 'java' ? sourceInput : tupleText;
 
 const form = document.querySelector('#compiler-form');
 const sourceInput = document.querySelector('#source-code');
@@ -50,9 +42,6 @@ function stopPending() {
   busy(false);
 }
 
-const tupleInput = createQuadrupleInput(document.querySelector('#quadruple-input'), clearAnalysis);
-const currentSource = () => mode === 'java' ? sourceInput.value : tupleStyle.value === 'text' ? tupleText.value : tupleInput.source();
-
 function clearAnalysis() {
   const source = sourceInput.value;
   const lines = source.length === 0 ? 0 : source.split(/\r\n|\r|\n/).length;
@@ -60,7 +49,6 @@ function clearAnalysis() {
   metrics.textContent = `${lines} ${lines === 1 ? 'línea' : 'líneas'} · ${characters} ${characters === 1 ? 'carácter' : 'caracteres'}`;
   status.hidden = true;
   sourceInput.removeAttribute('aria-invalid');
-  tupleText.removeAttribute('aria-invalid');
   stopPending();
   results.clear();
   errors.clear();
@@ -69,7 +57,6 @@ function clearAnalysis() {
   threeAddress.clear();
 }
 sourceInput.addEventListener('input', clearAnalysis);
-tupleText.addEventListener('input', clearAnalysis);
 
 form.addEventListener('submit', (event) => {
   event.preventDefault();
@@ -79,32 +66,22 @@ form.addEventListener('submit', (event) => {
   tree.clear();
   quadruples.clear();
   threeAddress.clear();
-  if (mode === 'quadruples' && tupleStyle.value === 'fields' && !tupleInput.validate()) {
-    announce('Completa los cuatro campos de cada cuádruplo.', 'empty');
-    return;
-  }
-  if (!currentSource().trim()) {
-    announce(mode === 'java' ? 'Escribe o pega código Java.' : 'Escribe o pega tus cuádruplos.', 'empty');
-    activeText().setAttribute('aria-invalid', 'true');
-    activeText().focus();
+  if (!sourceInput.value.trim()) {
+    announce('Escribe o pega código Java.', 'empty');
+    sourceInput.setAttribute('aria-invalid', 'true');
+    sourceInput.focus();
     return;
   }
   sourceInput.removeAttribute('aria-invalid');
-  tupleText.removeAttribute('aria-invalid');
   busy(true);
   announce('Analizando…', 'working');
   const requestId = revision;
-  const source = currentSource();
+  const source = sourceInput.value;
   const receive = ({ data }) => {
       if (data.requestId !== revision) return;
       stopPending();
       if (data.error) { announce(data.error, 'incomplete'); return; }
       const { result } = data;
-      if (mode === 'quadruples') {
-        if (result.inputError) { announce(result.inputError, 'incomplete'); return; }
-        quadruples.show(result.quadrupleAnalysis, {optimization: result.optimizationAnalysis, optimizationOnly: true});
-        status.hidden = true; status.textContent = ''; return;
-      }
       results.show(result);
       errors.show(result);
       tree.show(result);
@@ -121,7 +98,7 @@ form.addEventListener('submit', (event) => {
     worker = undefined;
     setTimeout(() => {
       if (requestId !== revision) return;
-      try { receive({ data: { requestId, result: mode === 'java' ? analyzeProgram(source) : analyzeQuadrupleInput(source) } }); }
+      try { receive({ data: { requestId, result: analyzeProgram(source) } }); }
       catch (error) {
         console.error('Falló el análisis local.', error);
         stopPending();
@@ -137,7 +114,7 @@ form.addEventListener('submit', (event) => {
       console.warn('No se pudo usar el Worker; se utilizará el análisis local.', event.message);
       fallback();
     };
-    worker.postMessage({ requestId, source, mode });
+    worker.postMessage({ requestId, source });
   } catch {
     fallback();
   }
@@ -145,16 +122,3 @@ form.addEventListener('submit', (event) => {
 
 // Prepare local application files without delaying the editor or analysis.
 registerCacheWorker();
-
-function updateEntryView() {
-  document.querySelector('#source-code').closest('.editor').hidden = mode !== 'java';
-  document.querySelector('#quadruple-entry-options').hidden = mode === 'java';
-  document.querySelector('#quadruple-input').hidden = mode === 'java' || tupleStyle.value !== 'fields';
-  document.querySelector('#quadruple-text-editor').hidden = mode === 'java' || tupleStyle.value !== 'text';
-  clearAnalysis();
-}
-modeSelect.addEventListener('change', () => {
-  mode = modeSelect.value;
-  updateEntryView();
-});
-tupleStyle.addEventListener('change', updateEntryView);

@@ -115,11 +115,14 @@ Verificación final: 306 pruebas aprobadas, incluida integración con las salida
 
 ## Entrada alternativa de cuádruplos
 
-El selector superior inicia siempre en Código Java. El modo Cuádruplos acepta registros numerados consecutivamente, cuatro campos separados por comas y un cierre opcional `ID1 PMAIN → [n]` (también `->`). Respeta comillas y comas dentro de cadenas. Los resultados deben ser literales concretos con su tipo; los resultados simbólicos como `x` o `5+x` no están admitidos en esta versión. Los errores indican la línea y no muestran salidas parciales.
+La aplicación ahora recibe únicamente código Java. Se retiraron el selector de
+modo y las entradas manuales por campos y texto, junto con su ruta en el Worker.
+Los cuádruplos generados desde Java, sus pestañas de optimización y el resultado
+final conservan su funcionamiento.
 
-La secuencia se considera completa: PC solo recibe evidencia para IDs con una única asignación en ella y sigue requiriendo procedencia constante. Se conservan por separado ambos borradores mientras la página está abierta. Cambiar de modo cancela el trabajo y limpia las salidas. En modo alternativo solo se muestran Optimización y Resultado final; no se generan tablas de símbolos/errores Java, árbol o tres direcciones.
-
-El parser no ejecuta texto como código. Comprueba límites, registros anteriores, estructura y resultados calculables. La ejecución usa el Worker con el mismo respaldo local que el modo Java. Inventario offline regenerado; pruebas de parser e integración visual verificadas.
+El lector de cuádruplos se conserva como utilidad interna para las pruebas del
+motor. No se importa desde la aplicación ni se distribuye en la caché offline.
+Las notas siguientes documentan sus reglas internas.
 
 ### Refuerzo tras pruebas adversas
 
