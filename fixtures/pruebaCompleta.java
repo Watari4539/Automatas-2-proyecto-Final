@@ -1,5 +1,3 @@
-
-
 public class PruebaCompleta {
 
     public double calcular(int base, float factor) {

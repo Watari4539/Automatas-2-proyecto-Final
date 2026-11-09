@@ -146,3 +146,53 @@ test('leyenda conserva IDs y nombres una sola vez, solo para símbolos usados po
     { id: 'ID8', name: 'num' },
   ]);
 });
+
+test('el visor conserva las ubicaciones de cada aparición y de sus expresiones expandidas', () => {
+  const source = '// 😀\npublic class Demo { public static void main(String[] args){int a=2+3; System.out.println(a+a);} }';
+  const built = buildProgramTree(source);
+  assert.equal(built.status, 'success');
+  const layout = layoutTree(evaluateTree(built.tree).tree);
+  const assignments = layout.nodes.filter(node => node.fullLabel.endsWith('='));
+  assert.equal(assignments.length, 2);
+  assert.deepEqual(assignments.map(node => source.slice(node.source.start, node.source.end)), ['a=2+3','a=2+3']);
+  assert.equal(new Set(assignments.map(node => node.source.start)).size, 1);
+  const plus = layout.nodes.filter(node => node.fullLabel === '+');
+  assert.deepEqual(plus.map(node => source.slice(node.source.start, node.source.end)), ['+','+','+']);
+  assert.equal(new Set(plus.map(node => node.source.start)).size, 2);
+  assert.deepEqual(structuredClone(layout), layout);
+  const original = built.tree.nodes.find(node => node.id === assignments[0].id).source.start;
+  assignments[0].source.start = 0;
+  assert.equal(built.tree.nodes.find(node => node.id === assignments[0].id).source.start, original);
+});
+
+
+test('las asignaciones señalan su definición por ámbito, incluyendo casts y líneas completas', () => {
+  const source = `// 😀\r
+public class Demo {
+  String palabra = "CAMPO";
+  public String texto() {
+    String palabra = "AUTOMATAS";
+    return palabra + palabra.length();
+  }
+  public static void main(String[] args) {
+    char letra = (char)(
+      65 + 1);
+    System.out.println(new Demo().texto() + letra);
+  }
+}`;
+  const built = buildProgramTree(source);
+  assert.equal(built.status, 'success');
+  const layout = layoutTree(evaluateTree(built.tree).tree);
+  const assignments = built.tree.nodes.filter(node => node.kind === 'assignment');
+  const locations = assignments.map(node => {
+    const placed = layout.nodes.find(item => item.id === node.id);
+    assert.notEqual(node.source.start, placed.source.start);
+    assert.equal(source.slice(node.source.start, node.source.end),
+      built.tree.symbols.find(symbol => symbol.id === node.symbolId).name);
+    return source.slice(placed.source.start, placed.source.end);
+  });
+  assert.deepEqual(locations, ['palabra = "AUTOMATAS"', 'palabra = "AUTOMATAS"', 'letra = (char)(\n      65 + 1)']);
+  const definition = assignments[0].definitionSource;
+  layout.nodes.find(node => node.id === assignments[0].id).source.start = 0;
+  assert.notEqual(definition.start, 0);
+});

@@ -1,3 +1,5 @@
+import { reuseOrigins, reuseKey } from './reuse.js';
+import { foldedStringLength } from './string-facts.js';
 import { validateOptimization } from './validation.js';
 export { validateOptimization } from './validation.js';
 import { buildOptimizationRows } from './rows.js';
@@ -6,7 +8,6 @@ import { createEmptyOptimizationResult, createRecordIdentity, PROTECTED_OPERATOR
 
 const PURE = new Set(['+', '-', '*', '/']);
 const copy = value => structuredClone(value);
-const key = value => JSON.stringify(value, (_, v) => typeof v === 'bigint' ? `${v}n` : v);
 function mapOperand(operand, transform) {
   const value = operand.kind === 'externalCall'
     ? { ...operand, args: operand.args.map(arg => mapOperand(arg, transform)) } : copy(operand);
@@ -23,7 +24,7 @@ function replacement(value) {
 
 /** Independent API. constantAssignments is origin-analysis evidence, keyed by qN,
  * never inferred from a recorded result. No mutation or DOM access. */
-export function optimizeQuadruples(input, { constantAssignments = [], hasSourceErrors = false, maxRecords = 2000 } = {}) {
+export function optimizeQuadruples(input, { constantAssignments = [], equivalentRecords = [], hasSourceErrors = false, maxRecords = 2000 } = {}) {
   const output = createEmptyOptimizationResult();
   if (hasSourceErrors || input?.status !== 'success' || input.validation?.valid !== true) {
     return { ...output, status: 'blocked', diagnostics: [{ code: 'OPT_INPUT', message: 'Se requieren cuádruplos completos y validados, sin errores de origen.' }] };
@@ -46,6 +47,7 @@ export function optimizeQuadruples(input, { constantAssignments = [], hasSourceE
     let closure = input.closure ? { ...copy(input.closure), target: internal(input.closure.target, records.length + 1) } : null;
     const originals = new Map(records.map(r => [r.identity.id, copy(r)]));
     const evidence = new Set(constantAssignments);
+    const origins = reuseOrigins(equivalentRecords, new Set(originals.keys()));
     const causes = new Map(records.map(r => [r.identity.id, new Set()]));
     let active = [...records];
     const references = (operand, id) => {
@@ -76,12 +78,6 @@ export function optimizeQuadruples(input, { constantAssignments = [], hasSourceE
       if (r.operator === '+' && is(a, 0)) operand = r.right;
       return operand && typeOf(operand) === r.result.type ? copy(operand) : null;
     };
-    const lengthValue = r => {
-      const receiver = literal(r.left);
-      return r.operator === '.' && receiver?.type === 'String' && !receiver.symbolic &&
-        r.right.kind === 'external' && r.right.text === 'length()'
-        ? {type: 'int', value: BigInt(receiver.value.length), constant: true} : null;
-    };
     const constantPair = r => PURE.has(r.operator) && literal(r.left) && literal(r.right);
     let changed;
     do {
@@ -89,14 +85,30 @@ export function optimizeQuadruples(input, { constantAssignments = [], hasSourceE
       const seen = new Map();
       for (const r of [...active]) {
         const id = r.identity.id, original = originals.get(id);
-        const length = lengthValue(r);
-        if (!length && (PROTECTED_OPERATORS.includes(r.operator) || !PURE.has(r.operator) && r.operator !== '=')) { seen.clear(); continue; }
+        const length = foldedStringLength(r, new Map(active.map(item => [item.identity.id, item])));
+        const expressionKey = item => reuseKey(item, origins, originals);
+        const reusable = expressionKey(r);
+        if (!length && !reusable && (PROTECTED_OPERATORS.includes(r.operator) || !PURE.has(r.operator) && r.operator !== '=')) continue;
         let technique, value, derived = false;
         try {
           value = simplify(r);
           if (value) { technique = 'SE'; derived = !simplify(original); }
           else if (length) {
-            value = replacement(length); technique = 'FO'; derived = !lengthValue(original);
+            value = replacement(length); technique = 'FO'; derived = !foldedStringLength(original, originals);
+            // A producer's simplified substring bounds can enable length folding
+            // without replacing the reference to that protected producer.
+            if (derived) {
+              const producers = new Map(active.map(item => [item.identity.id, item]));
+              const pending = [r.left], visited = new Set();
+              while (pending.length) mapOperand(pending.pop(), operand => {
+                if (operand.kind !== 'reference' || visited.has(operand.recordId)) return operand;
+                visited.add(operand.recordId);
+                for (const cause of causes.get(operand.recordId) ?? []) causes.get(id).add(cause);
+                const producer = producers.get(operand.recordId);
+                if (producer) pending.push(producer.left, producer.right);
+                return operand;
+              });
+            }
           } else if (constantPair(r)) {
             value = replacement(binaryValue(r.operator, literal(r.left), literal(r.right)));
             technique = 'FO'; derived = !constantPair(original);
@@ -106,10 +118,7 @@ export function optimizeQuadruples(input, { constantAssignments = [], hasSourceE
             technique = 'PC'; derived = !literal(original.right);
           }
         } catch { /* Unsupported literal/value operation: preserve the record. */ }
-        const expressionKey = item => key([item.contextId, item.operator, item.left, item.right, item.result.type]);
-        const immutable = o => o.kind === 'literal' || o.kind === 'reference';
-        const eligibleRS = PURE.has(r.operator) && immutable(r.left) && immutable(r.right);
-        if (!technique && eligibleRS) {
+        if (!technique && reusable) {
           const first = seen.get(expressionKey(r));
           if (first) {
             technique = 'RS'; value = { kind: 'reference', recordId: first.identity.id };
@@ -117,7 +126,7 @@ export function optimizeQuadruples(input, { constantAssignments = [], hasSourceE
             if (derived) for (const cause of causes.get(first.identity.id)) causes.get(id).add(cause);
           } else seen.set(expressionKey(r), r);
         }
-        if (!technique) { if (r.operator === '=') seen.clear(); continue; }
+        if (!technique) continue;
         const affected = active.filter(x => x !== r && (references(x.left, id) || references(x.right, id)));
         const affectsClosure = !!closure && references(closure.target, id);
         const sequence = output.events.length + 1;
@@ -140,7 +149,7 @@ export function optimizeQuadruples(input, { constantAssignments = [], hasSourceE
     output.closure = closure;
     output.status = 'success';
     output.rows = buildOptimizationRows(output);
-    output.validation = validateOptimization(input, output, {constantAssignments});
+    output.validation = validateOptimization(input, output, {constantAssignments, equivalentRecords});
     if (!output.validation.valid) return { ...createEmptyOptimizationResult(), status: 'invalid', validation: output.validation, diagnostics: output.validation.diagnostics };
     return output;
   } catch (error) {

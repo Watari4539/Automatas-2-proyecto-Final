@@ -32,7 +32,7 @@ export function createTreeBuilder(symbols = []) {
   });
   const nodes = new Map();
 
-  function addNode({ kind, text = null, symbolId = null, children = [], source = null, contextId = null, castType = null, declaredType = null, constantVariable = false }) {
+  function addNode({ kind, text = null, symbolId = null, children = [], source = null, definitionSource = null, contextId = null, castType = null, declaredType = null, constantVariable = false }) {
     if (!NODE_KINDS.includes(kind)) throw new TypeError(`Clase de nodo desconocida: ${kind}`);
     if (symbolId !== null && !symbolIds.has(symbolId)) {
       throw new TypeError(`El símbolo ${symbolId} no pertenece a esta tabla.`);
@@ -54,7 +54,7 @@ export function createTreeBuilder(symbols = []) {
     }
     const id = `node${nodes.size + 1}`;
     nodes.set(id, {
-      id, kind, text, symbolId, children: [...children], source: range, contextId, castType, declaredType, constantVariable,
+      id, kind, text, symbolId, children: [...children], source: range, definitionSource: sourceRange(definitionSource), contextId, castType, declaredType, constantVariable,
       operationNumber: null,
       evaluation: null,
     });
@@ -84,6 +84,7 @@ export function createTreeBuilder(symbols = []) {
       nodes: [...nodes.values()].map(node => ({
         ...node, children: [...node.children],
         source: node.source === null ? null : { ...node.source },
+        definitionSource: node.definitionSource === null ? null : { ...node.definitionSource },
       })),
     };
   }

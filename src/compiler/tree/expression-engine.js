@@ -58,9 +58,12 @@ export function createExpressionEngine(context, { maxNodes, maxDepth }, hooks = 
         return hooks.parameter(symbol, occurrence, depth, useIndex, frame);
       }
       let range = initializerRange(context, symbol);
+      // La aparición conserva su origen; el visor de una asignación muestra su definición.
+      // Capturar antes de extraer el cast para incluir el inicializador completo.
+      const definitionSource = { ...tokens[symbol.declaration], end: tokens[range.end - 1].end };
       if (hooks.initializer) range = hooks.initializer(range);
       const child = expression(range.start, range.end, depth + 1, useIndex, frame);
-      return addNode({ kind: 'assignment', symbolId: idsByKey.get(symbol.key), children: [child], source: occurrence, castType: range.castType ?? null }, frame);
+      return addNode({ kind: 'assignment', symbolId: idsByKey.get(symbol.key), children: [child], source: occurrence, definitionSource, castType: range.castType ?? null }, frame);
     } finally {
       active.delete(identity);
     }

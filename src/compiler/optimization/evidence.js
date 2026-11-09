@@ -14,3 +14,22 @@ export function collectConstantAssignments(source, tree, quadruples) {
     return !(context.writes.get(symbol.key)?.length);
   }).map(record => `q${record.number}`);
 }
+
+/** Groups duplicated tree derivations of the same operation in one call context.
+ * Separate source calls (even with identical text/results) never share a group.
+ */
+export function collectEquivalentRecords(tree, quadruples) {
+  const nodes = new Map(tree.nodes.map(node => [node.id, node]));
+  const groups = new Map();
+  for (const record of quadruples.records) {
+    if (!['=', '.'].includes(record.operator)) continue;
+    const node = nodes.get(record.nodeId);
+    const source = node?.definitionSource ?? node?.source;
+    if (!node || !source || !node.contextId || !Number.isSafeInteger(source.start) || !Number.isSafeInteger(source.end)) continue;
+    const key = JSON.stringify([node.contextId, node.kind, node.symbolId, source.start, source.end]);
+    const group = groups.get(key) ?? [];
+    group.push(`q${record.number}`);
+    groups.set(key, group);
+  }
+  return [...groups.values()].filter(group => group.length > 1);
+}

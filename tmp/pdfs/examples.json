@@ -1,0 +1,2144 @@
+{
+  "recorrido": {
+    "source": "public class Demo {\n    public int calcular(int base) {\n        char letra = 'A';\n        int total = base * 2 + letra;\n        return total;\n    }\n    public static void main(String[] args) {\n        int numero = 3 + 2;\n        System.out.println(new Demo().calcular(numero));\n    }\n}",
+    "symbols": [
+      {
+        "id": "ID1",
+        "name": "Demo",
+        "kind": "class",
+        "declaration": 2
+      },
+      {
+        "id": "ID2",
+        "name": "calcular",
+        "kind": "method",
+        "declaration": 6
+      },
+      {
+        "id": "ID3",
+        "name": "base",
+        "kind": "parameter",
+        "declaration": 9
+      },
+      {
+        "id": "ID4",
+        "name": "letra",
+        "kind": "local",
+        "declaration": 13
+      },
+      {
+        "id": "ID5",
+        "name": "total",
+        "kind": "local",
+        "declaration": 18
+      },
+      {
+        "id": "ID6",
+        "name": "args",
+        "kind": "parameter",
+        "declaration": 38
+      },
+      {
+        "id": "ID7",
+        "name": "numero",
+        "kind": "local",
+        "declaration": 42
+      }
+    ],
+    "errors": [],
+    "tree": {
+      "version": 1,
+      "rootId": "node17",
+      "symbols": [
+        {
+          "id": "ID1",
+          "name": "Demo",
+          "kind": "class",
+          "declaration": 2
+        },
+        {
+          "id": "ID2",
+          "name": "calcular",
+          "kind": "method",
+          "declaration": 6
+        },
+        {
+          "id": "ID3",
+          "name": "base",
+          "kind": "parameter",
+          "declaration": 9
+        },
+        {
+          "id": "ID4",
+          "name": "letra",
+          "kind": "local",
+          "declaration": 13
+        },
+        {
+          "id": "ID5",
+          "name": "total",
+          "kind": "local",
+          "declaration": 18
+        },
+        {
+          "id": "ID6",
+          "name": "args",
+          "kind": "parameter",
+          "declaration": 38
+        },
+        {
+          "id": "ID7",
+          "name": "numero",
+          "kind": "local",
+          "declaration": 42
+        }
+      ],
+      "nodes": [
+        {
+          "id": "node1",
+          "kind": "constructor",
+          "text": null,
+          "symbolId": "ID1",
+          "children": [],
+          "source": {
+            "start": 252,
+            "end": 256,
+            "line": 9,
+            "column": 32
+          },
+          "definitionSource": null,
+          "contextId": "context1",
+          "castType": null,
+          "declaredType": null,
+          "constantVariable": false,
+          "operationNumber": null,
+          "evaluation": {
+            "type": "object",
+            "value": "ID1",
+            "token": "ID",
+            "display": "ID1()"
+          },
+          "depth": 3,
+          "level": 9,
+          "levelIndex": 0
+        },
+        {
+          "id": "node2",
+          "kind": "literal",
+          "text": "3",
+          "symbolId": null,
+          "children": [],
+          "source": {
+            "start": 214,
+            "end": 215,
+            "line": 8,
+            "column": 22
+          },
+          "definitionSource": null,
+          "contextId": "context1",
+          "castType": null,
+          "declaredType": null,
+          "constantVariable": false,
+          "operationNumber": null,
+          "evaluation": {
+            "type": "int",
+            "value": "3",
+            "constant": true,
+            "token": "VTE",
+            "display": "3"
+          },
+          "depth": 11,
+          "level": 1,
+          "levelIndex": 0
+        },
+        {
+          "id": "node3",
+          "kind": "literal",
+          "text": "2",
+          "symbolId": null,
+          "children": [],
+          "source": {
+            "start": 218,
+            "end": 219,
+            "line": 8,
+            "column": 26
+          },
+          "definitionSource": null,
+          "contextId": "context1",
+          "castType": null,
+          "declaredType": null,
+          "constantVariable": false,
+          "operationNumber": null,
+          "evaluation": {
+            "type": "int",
+            "value": "2",
+            "constant": true,
+            "token": "VTE",
+            "display": "2"
+          },
+          "depth": 11,
+          "level": 1,
+          "levelIndex": 1
+        },
+        {
+          "id": "node4",
+          "kind": "operator",
+          "text": "+",
+          "symbolId": null,
+          "children": [
+            "node2",
+            "node3"
+          ],
+          "source": {
+            "start": 216,
+            "end": 217,
+            "line": 8,
+            "column": 24
+          },
+          "definitionSource": null,
+          "contextId": "context1",
+          "castType": null,
+          "declaredType": null,
+          "constantVariable": false,
+          "operationNumber": 1,
+          "evaluation": {
+            "type": "int",
+            "value": "5",
+            "constant": true,
+            "token": "VTE",
+            "display": "5"
+          },
+          "depth": 10,
+          "level": 2,
+          "levelIndex": 0
+        },
+        {
+          "id": "node5",
+          "kind": "assignment",
+          "text": null,
+          "symbolId": "ID7",
+          "children": [
+            "node4"
+          ],
+          "source": {
+            "start": 268,
+            "end": 274,
+            "line": 9,
+            "column": 48
+          },
+          "definitionSource": {
+            "start": 205,
+            "end": 219,
+            "line": 8,
+            "column": 13
+          },
+          "contextId": "context1",
+          "castType": null,
+          "declaredType": "int",
+          "constantVariable": false,
+          "operationNumber": 2,
+          "evaluation": {
+            "type": "int",
+            "value": "5",
+            "constant": false,
+            "token": "VTE",
+            "display": "5"
+          },
+          "depth": 9,
+          "level": 3,
+          "levelIndex": 0
+        },
+        {
+          "id": "node6",
+          "kind": "reference",
+          "text": null,
+          "symbolId": "ID3",
+          "children": [
+            "node5"
+          ],
+          "source": {
+            "start": 102,
+            "end": 106,
+            "line": 4,
+            "column": 21
+          },
+          "definitionSource": null,
+          "contextId": "context2",
+          "castType": null,
+          "declaredType": "int",
+          "constantVariable": false,
+          "operationNumber": null,
+          "evaluation": {
+            "type": "int",
+            "value": "5",
+            "constant": false,
+            "token": "VTE",
+            "display": "5"
+          },
+          "depth": 8,
+          "level": 4,
+          "levelIndex": 0
+        },
+        {
+          "id": "node7",
+          "kind": "literal",
+          "text": "2",
+          "symbolId": null,
+          "children": [],
+          "source": {
+            "start": 109,
+            "end": 110,
+            "line": 4,
+            "column": 28
+          },
+          "definitionSource": null,
+          "contextId": "context2",
+          "castType": null,
+          "declaredType": null,
+          "constantVariable": false,
+          "operationNumber": null,
+          "evaluation": {
+            "type": "int",
+            "value": "2",
+            "constant": true,
+            "token": "VTE",
+            "display": "2"
+          },
+          "depth": 8,
+          "level": 4,
+          "levelIndex": 1
+        },
+        {
+          "id": "node8",
+          "kind": "operator",
+          "text": "*",
+          "symbolId": null,
+          "children": [
+            "node6",
+            "node7"
+          ],
+          "source": {
+            "start": 107,
+            "end": 108,
+            "line": 4,
+            "column": 26
+          },
+          "definitionSource": null,
+          "contextId": "context2",
+          "castType": null,
+          "declaredType": null,
+          "constantVariable": false,
+          "operationNumber": 3,
+          "evaluation": {
+            "type": "int",
+            "value": "10",
+            "constant": false,
+            "token": "VTE",
+            "display": "10"
+          },
+          "depth": 7,
+          "level": 5,
+          "levelIndex": 0
+        },
+        {
+          "id": "node9",
+          "kind": "literal",
+          "text": "'A'",
+          "symbolId": null,
+          "children": [],
+          "source": {
+            "start": 77,
+            "end": 80,
+            "line": 3,
+            "column": 22
+          },
+          "definitionSource": null,
+          "contextId": "context2",
+          "castType": null,
+          "declaredType": null,
+          "constantVariable": false,
+          "operationNumber": null,
+          "evaluation": {
+            "type": "char",
+            "value": "A",
+            "constant": true,
+            "token": "VTC",
+            "display": "'A'"
+          },
+          "depth": 8,
+          "level": 4,
+          "levelIndex": 2
+        },
+        {
+          "id": "node10",
+          "kind": "assignment",
+          "text": null,
+          "symbolId": "ID4",
+          "children": [
+            "node9"
+          ],
+          "source": {
+            "start": 113,
+            "end": 118,
+            "line": 4,
+            "column": 32
+          },
+          "definitionSource": {
+            "start": 69,
+            "end": 80,
+            "line": 3,
+            "column": 14
+          },
+          "contextId": "context2",
+          "castType": null,
+          "declaredType": "char",
+          "constantVariable": false,
+          "operationNumber": 4,
+          "evaluation": {
+            "type": "char",
+            "value": "A",
+            "constant": false,
+            "token": "VTC",
+            "display": "'A'"
+          },
+          "depth": 7,
+          "level": 5,
+          "levelIndex": 1
+        },
+        {
+          "id": "node11",
+          "kind": "operator",
+          "text": "+",
+          "symbolId": null,
+          "children": [
+            "node8",
+            "node10"
+          ],
+          "source": {
+            "start": 111,
+            "end": 112,
+            "line": 4,
+            "column": 30
+          },
+          "definitionSource": null,
+          "contextId": "context2",
+          "castType": null,
+          "declaredType": null,
+          "constantVariable": false,
+          "operationNumber": 5,
+          "evaluation": {
+            "type": "int",
+            "value": "75",
+            "constant": false,
+            "token": "VTE",
+            "display": "75"
+          },
+          "depth": 6,
+          "level": 6,
+          "levelIndex": 0
+        },
+        {
+          "id": "node12",
+          "kind": "assignment",
+          "text": null,
+          "symbolId": "ID5",
+          "children": [
+            "node11"
+          ],
+          "source": {
+            "start": 135,
+            "end": 140,
+            "line": 5,
+            "column": 16
+          },
+          "definitionSource": {
+            "start": 94,
+            "end": 118,
+            "line": 4,
+            "column": 13
+          },
+          "contextId": "context2",
+          "castType": null,
+          "declaredType": "int",
+          "constantVariable": false,
+          "operationNumber": 6,
+          "evaluation": {
+            "type": "int",
+            "value": "75",
+            "constant": false,
+            "token": "VTE",
+            "display": "75"
+          },
+          "depth": 5,
+          "level": 7,
+          "levelIndex": 0
+        },
+        {
+          "id": "node13",
+          "kind": "return",
+          "text": "RTN",
+          "symbolId": null,
+          "children": [
+            "node12"
+          ],
+          "source": {
+            "start": 128,
+            "end": 134,
+            "line": 5,
+            "column": 9
+          },
+          "definitionSource": null,
+          "contextId": "context2",
+          "castType": null,
+          "declaredType": "int",
+          "constantVariable": false,
+          "operationNumber": 7,
+          "evaluation": {
+            "type": "int",
+            "value": "75",
+            "constant": false,
+            "token": "VTE",
+            "display": "75"
+          },
+          "depth": 4,
+          "level": 8,
+          "levelIndex": 0
+        },
+        {
+          "id": "node14",
+          "kind": "call",
+          "text": null,
+          "symbolId": "ID2",
+          "children": [
+            "node13"
+          ],
+          "source": {
+            "start": 259,
+            "end": 267,
+            "line": 9,
+            "column": 39
+          },
+          "definitionSource": null,
+          "contextId": "context2",
+          "castType": null,
+          "declaredType": "int",
+          "constantVariable": false,
+          "operationNumber": null,
+          "evaluation": {
+            "type": "int",
+            "value": "75",
+            "constant": false,
+            "token": "VTE",
+            "display": "75"
+          },
+          "depth": 3,
+          "level": 9,
+          "levelIndex": 1
+        },
+        {
+          "id": "node15",
+          "kind": "operator",
+          "text": ".",
+          "symbolId": null,
+          "children": [
+            "node1",
+            "node14"
+          ],
+          "source": {
+            "start": 258,
+            "end": 259,
+            "line": 9,
+            "column": 38
+          },
+          "definitionSource": null,
+          "contextId": "context1",
+          "castType": null,
+          "declaredType": null,
+          "constantVariable": false,
+          "operationNumber": 8,
+          "evaluation": {
+            "type": "int",
+            "value": "75",
+            "constant": false,
+            "token": "VTE",
+            "display": "75"
+          },
+          "depth": 2,
+          "level": 10,
+          "levelIndex": 0
+        },
+        {
+          "id": "node16",
+          "kind": "output",
+          "text": "SOUT",
+          "symbolId": null,
+          "children": [
+            "node15"
+          ],
+          "source": {
+            "start": 229,
+            "end": 235,
+            "line": 9,
+            "column": 9
+          },
+          "definitionSource": null,
+          "contextId": "context1",
+          "castType": null,
+          "declaredType": null,
+          "constantVariable": false,
+          "operationNumber": null,
+          "evaluation": null,
+          "depth": 1,
+          "level": 11,
+          "levelIndex": 0
+        },
+        {
+          "id": "node17",
+          "kind": "entry",
+          "text": null,
+          "symbolId": "ID1",
+          "children": [
+            "node16"
+          ],
+          "source": {
+            "start": 13,
+            "end": 17,
+            "line": 1,
+            "column": 14
+          },
+          "definitionSource": null,
+          "contextId": "context1",
+          "castType": null,
+          "declaredType": null,
+          "constantVariable": false,
+          "operationNumber": null,
+          "evaluation": null,
+          "depth": 0,
+          "level": 12,
+          "levelIndex": 0
+        }
+      ],
+      "contexts": [
+        {
+          "id": "context1",
+          "parentId": null,
+          "methodSymbolId": null,
+          "isMain": true,
+          "source": {
+            "start": 171,
+            "end": 175,
+            "line": 7,
+            "column": 24
+          },
+          "arguments": []
+        },
+        {
+          "id": "context2",
+          "parentId": "context1",
+          "methodSymbolId": "ID2",
+          "isMain": false,
+          "source": {
+            "start": 259,
+            "end": 267,
+            "line": 9,
+            "column": 39
+          },
+          "arguments": [
+            {
+              "parameterSymbolId": "ID3",
+              "callerContextId": "context1",
+              "source": {
+                "start": 268,
+                "end": 274,
+                "line": 9,
+                "column": 48
+              }
+            }
+          ]
+        }
+      ],
+      "numbering": {
+        "operationKinds": [
+          "operator",
+          "assignment",
+          "return",
+          "conversion"
+        ],
+        "operationCount": 8,
+        "operationOrder": [
+          "node4",
+          "node5",
+          "node8",
+          "node10",
+          "node11",
+          "node12",
+          "node13",
+          "node15"
+        ],
+        "levels": [
+          {
+            "level": 1,
+            "depth": 11,
+            "nodeIds": [
+              "node2",
+              "node3"
+            ]
+          },
+          {
+            "level": 2,
+            "depth": 10,
+            "nodeIds": [
+              "node4"
+            ]
+          },
+          {
+            "level": 3,
+            "depth": 9,
+            "nodeIds": [
+              "node5"
+            ]
+          },
+          {
+            "level": 4,
+            "depth": 8,
+            "nodeIds": [
+              "node6",
+              "node7",
+              "node9"
+            ]
+          },
+          {
+            "level": 5,
+            "depth": 7,
+            "nodeIds": [
+              "node8",
+              "node10"
+            ]
+          },
+          {
+            "level": 6,
+            "depth": 6,
+            "nodeIds": [
+              "node11"
+            ]
+          },
+          {
+            "level": 7,
+            "depth": 5,
+            "nodeIds": [
+              "node12"
+            ]
+          },
+          {
+            "level": 8,
+            "depth": 4,
+            "nodeIds": [
+              "node13"
+            ]
+          },
+          {
+            "level": 9,
+            "depth": 3,
+            "nodeIds": [
+              "node1",
+              "node14"
+            ]
+          },
+          {
+            "level": 10,
+            "depth": 2,
+            "nodeIds": [
+              "node15"
+            ]
+          },
+          {
+            "level": 11,
+            "depth": 1,
+            "nodeIds": [
+              "node16"
+            ]
+          },
+          {
+            "level": 12,
+            "depth": 0,
+            "nodeIds": [
+              "node17"
+            ]
+          }
+        ]
+      },
+      "evaluation": {
+        "complete": true,
+        "evaluatedOperationOrder": [
+          "node4",
+          "node5",
+          "node8",
+          "node10",
+          "node11",
+          "node12",
+          "node13",
+          "node15"
+        ],
+        "randomPolicy": "symbolic-x"
+      }
+    },
+    "quads": [
+      "1.- (3, +, 2, 5)",
+      "2.- (ID7, =, [1], 5)",
+      "3.- (ID3, =, [2], 5)",
+      "4.- ([3], *, 2, 10)",
+      "5.- (ID4, =, 'A', 'A')",
+      "6.- ([4], +, [5], 75)",
+      "7.- (ID5, =, [6], 75)",
+      "8.- (ID2, RTN, [7], 75)",
+      "9.- (ID1(), ., [8], 75)",
+      "10.- (PMAIN, SOUT, [9], 75)"
+    ],
+    "quadClosure": "ID1 PMAIN -> [10]",
+    "optimization": [
+      {
+        "original": "1.- (3, +, 2, 5)",
+        "optimization": "FO",
+        "affected": "2",
+        "modified": "ELIMINAR"
+      },
+      {
+        "original": "2.- (ID7, =, [1], 5)",
+        "optimization": "PCD",
+        "affected": "3",
+        "modified": "1.- (ID7, =, 5, 5) → ELIMINAR"
+      },
+      {
+        "original": "3.- (ID3, =, [2], 5)",
+        "optimization": "PCD",
+        "affected": "4",
+        "modified": "1.- (ID3, =, 5, 5) → ELIMINAR"
+      },
+      {
+        "original": "4.- ([3], *, 2, 10)",
+        "optimization": "FOD",
+        "affected": "6",
+        "modified": "1.- (5, *, 2, 10) → ELIMINAR"
+      },
+      {
+        "original": "5.- (ID4, =, 'A', 'A')",
+        "optimization": "PC",
+        "affected": "6",
+        "modified": "1.- (ID4, =, 'A', 'A') → ELIMINAR"
+      },
+      {
+        "original": "6.- ([4], +, [5], 75)",
+        "optimization": "FOD",
+        "affected": "7",
+        "modified": "1.- (10, +, 'A', 75) → ELIMINAR"
+      },
+      {
+        "original": "7.- (ID5, =, [6], 75)",
+        "optimization": "PCD",
+        "affected": "8",
+        "modified": "1.- (ID5, =, 75, 75) → ELIMINAR"
+      },
+      {
+        "original": "8.- (ID2, RTN, [7], 75)",
+        "optimization": "—",
+        "affected": "9",
+        "modified": "1.- (ID2, RTN, 75, 75)"
+      },
+      {
+        "original": "9.- (ID1(), ., [8], 75)",
+        "optimization": "—",
+        "affected": "10",
+        "modified": "2.- (ID1(), ., [1], 75)"
+      },
+      {
+        "original": "10.- (PMAIN, SOUT, [9], 75)",
+        "optimization": "—",
+        "affected": "cierre",
+        "modified": "3.- (PMAIN, SOUT, [2], 75)"
+      }
+    ],
+    "final": [
+      "1.- (ID2, RTN, 75, 75)",
+      "2.- (ID1(), ., [1], 75)",
+      "3.- (PMAIN, SOUT, [2], 75)"
+    ],
+    "finalClosure": "ID1 PMAIN -> [3]",
+    "three": [
+      [
+        "T1. (3, +, 2)",
+        "T1",
+        1,
+        1
+      ],
+      [
+        "ID7 = T1",
+        "ninguno",
+        2,
+        2
+      ],
+      [
+        "ID3 = ID7",
+        "ninguno",
+        3,
+        null
+      ],
+      [
+        "T1. (ID3, *, 2)",
+        "T1",
+        4,
+        3
+      ],
+      [
+        "ID4 = 'A'",
+        "T1",
+        5,
+        4
+      ],
+      [
+        "T2. (T1, +, ID4)",
+        "T2",
+        6,
+        5
+      ],
+      [
+        "ID5 = T2",
+        "ninguno",
+        7,
+        6
+      ],
+      [
+        "T1. (ID2, RTN, ID5)",
+        "T1",
+        8,
+        7
+      ],
+      [
+        "T2. (ID1(), ., T1)",
+        "T2",
+        9,
+        8
+      ],
+      [
+        "T1. (PMAIN, SOUT, T2)",
+        "T1",
+        10,
+        null
+      ]
+    ],
+    "threeClosure": "ID1 PMAIN → T1",
+    "occupancyClosure": "ninguno",
+    "planning": {
+      "states": 0,
+      "steps": 0,
+      "reordered": false
+    },
+    "statuses": [
+      "success",
+      "success",
+      "success"
+    ]
+  },
+  "pendientes": {
+    "source": "public class Demo { public static void main(String[] args){System.out.println((1+2)+((3+4)*(5+6)));} }",
+    "symbols": [
+      {
+        "id": "ID1",
+        "name": "Demo",
+        "kind": "class",
+        "declaration": 2
+      },
+      {
+        "id": "ID2",
+        "name": "args",
+        "kind": "parameter",
+        "declaration": 12
+      }
+    ],
+    "errors": [],
+    "tree": {
+      "version": 1,
+      "rootId": "node13",
+      "symbols": [
+        {
+          "id": "ID1",
+          "name": "Demo",
+          "kind": "class",
+          "declaration": 2
+        },
+        {
+          "id": "ID2",
+          "name": "args",
+          "kind": "parameter",
+          "declaration": 12
+        }
+      ],
+      "nodes": [
+        {
+          "id": "node1",
+          "kind": "literal",
+          "text": "1",
+          "symbolId": null,
+          "children": [],
+          "source": {
+            "start": 79,
+            "end": 80,
+            "line": 1,
+            "column": 80
+          },
+          "definitionSource": null,
+          "contextId": "context1",
+          "castType": null,
+          "declaredType": null,
+          "constantVariable": false,
+          "operationNumber": null,
+          "evaluation": {
+            "type": "int",
+            "value": "1",
+            "constant": true,
+            "token": "VTE",
+            "display": "1"
+          },
+          "depth": 4,
+          "level": 2,
+          "levelIndex": 0
+        },
+        {
+          "id": "node2",
+          "kind": "literal",
+          "text": "2",
+          "symbolId": null,
+          "children": [],
+          "source": {
+            "start": 81,
+            "end": 82,
+            "line": 1,
+            "column": 82
+          },
+          "definitionSource": null,
+          "contextId": "context1",
+          "castType": null,
+          "declaredType": null,
+          "constantVariable": false,
+          "operationNumber": null,
+          "evaluation": {
+            "type": "int",
+            "value": "2",
+            "constant": true,
+            "token": "VTE",
+            "display": "2"
+          },
+          "depth": 4,
+          "level": 2,
+          "levelIndex": 1
+        },
+        {
+          "id": "node3",
+          "kind": "operator",
+          "text": "+",
+          "symbolId": null,
+          "children": [
+            "node1",
+            "node2"
+          ],
+          "source": {
+            "start": 80,
+            "end": 81,
+            "line": 1,
+            "column": 81
+          },
+          "definitionSource": null,
+          "contextId": "context1",
+          "castType": null,
+          "declaredType": null,
+          "constantVariable": false,
+          "operationNumber": 3,
+          "evaluation": {
+            "type": "int",
+            "value": "3",
+            "constant": true,
+            "token": "VTE",
+            "display": "3"
+          },
+          "depth": 3,
+          "level": 3,
+          "levelIndex": 0
+        },
+        {
+          "id": "node4",
+          "kind": "literal",
+          "text": "3",
+          "symbolId": null,
+          "children": [],
+          "source": {
+            "start": 86,
+            "end": 87,
+            "line": 1,
+            "column": 87
+          },
+          "definitionSource": null,
+          "contextId": "context1",
+          "castType": null,
+          "declaredType": null,
+          "constantVariable": false,
+          "operationNumber": null,
+          "evaluation": {
+            "type": "int",
+            "value": "3",
+            "constant": true,
+            "token": "VTE",
+            "display": "3"
+          },
+          "depth": 5,
+          "level": 1,
+          "levelIndex": 0
+        },
+        {
+          "id": "node5",
+          "kind": "literal",
+          "text": "4",
+          "symbolId": null,
+          "children": [],
+          "source": {
+            "start": 88,
+            "end": 89,
+            "line": 1,
+            "column": 89
+          },
+          "definitionSource": null,
+          "contextId": "context1",
+          "castType": null,
+          "declaredType": null,
+          "constantVariable": false,
+          "operationNumber": null,
+          "evaluation": {
+            "type": "int",
+            "value": "4",
+            "constant": true,
+            "token": "VTE",
+            "display": "4"
+          },
+          "depth": 5,
+          "level": 1,
+          "levelIndex": 1
+        },
+        {
+          "id": "node6",
+          "kind": "operator",
+          "text": "+",
+          "symbolId": null,
+          "children": [
+            "node4",
+            "node5"
+          ],
+          "source": {
+            "start": 87,
+            "end": 88,
+            "line": 1,
+            "column": 88
+          },
+          "definitionSource": null,
+          "contextId": "context1",
+          "castType": null,
+          "declaredType": null,
+          "constantVariable": false,
+          "operationNumber": 1,
+          "evaluation": {
+            "type": "int",
+            "value": "7",
+            "constant": true,
+            "token": "VTE",
+            "display": "7"
+          },
+          "depth": 4,
+          "level": 2,
+          "levelIndex": 2
+        },
+        {
+          "id": "node7",
+          "kind": "literal",
+          "text": "5",
+          "symbolId": null,
+          "children": [],
+          "source": {
+            "start": 92,
+            "end": 93,
+            "line": 1,
+            "column": 93
+          },
+          "definitionSource": null,
+          "contextId": "context1",
+          "castType": null,
+          "declaredType": null,
+          "constantVariable": false,
+          "operationNumber": null,
+          "evaluation": {
+            "type": "int",
+            "value": "5",
+            "constant": true,
+            "token": "VTE",
+            "display": "5"
+          },
+          "depth": 5,
+          "level": 1,
+          "levelIndex": 2
+        },
+        {
+          "id": "node8",
+          "kind": "literal",
+          "text": "6",
+          "symbolId": null,
+          "children": [],
+          "source": {
+            "start": 94,
+            "end": 95,
+            "line": 1,
+            "column": 95
+          },
+          "definitionSource": null,
+          "contextId": "context1",
+          "castType": null,
+          "declaredType": null,
+          "constantVariable": false,
+          "operationNumber": null,
+          "evaluation": {
+            "type": "int",
+            "value": "6",
+            "constant": true,
+            "token": "VTE",
+            "display": "6"
+          },
+          "depth": 5,
+          "level": 1,
+          "levelIndex": 3
+        },
+        {
+          "id": "node9",
+          "kind": "operator",
+          "text": "+",
+          "symbolId": null,
+          "children": [
+            "node7",
+            "node8"
+          ],
+          "source": {
+            "start": 93,
+            "end": 94,
+            "line": 1,
+            "column": 94
+          },
+          "definitionSource": null,
+          "contextId": "context1",
+          "castType": null,
+          "declaredType": null,
+          "constantVariable": false,
+          "operationNumber": 2,
+          "evaluation": {
+            "type": "int",
+            "value": "11",
+            "constant": true,
+            "token": "VTE",
+            "display": "11"
+          },
+          "depth": 4,
+          "level": 2,
+          "levelIndex": 3
+        },
+        {
+          "id": "node10",
+          "kind": "operator",
+          "text": "*",
+          "symbolId": null,
+          "children": [
+            "node6",
+            "node9"
+          ],
+          "source": {
+            "start": 90,
+            "end": 91,
+            "line": 1,
+            "column": 91
+          },
+          "definitionSource": null,
+          "contextId": "context1",
+          "castType": null,
+          "declaredType": null,
+          "constantVariable": false,
+          "operationNumber": 4,
+          "evaluation": {
+            "type": "int",
+            "value": "77",
+            "constant": true,
+            "token": "VTE",
+            "display": "77"
+          },
+          "depth": 3,
+          "level": 3,
+          "levelIndex": 1
+        },
+        {
+          "id": "node11",
+          "kind": "operator",
+          "text": "+",
+          "symbolId": null,
+          "children": [
+            "node3",
+            "node10"
+          ],
+          "source": {
+            "start": 83,
+            "end": 84,
+            "line": 1,
+            "column": 84
+          },
+          "definitionSource": null,
+          "contextId": "context1",
+          "castType": null,
+          "declaredType": null,
+          "constantVariable": false,
+          "operationNumber": 5,
+          "evaluation": {
+            "type": "int",
+            "value": "80",
+            "constant": true,
+            "token": "VTE",
+            "display": "80"
+          },
+          "depth": 2,
+          "level": 4,
+          "levelIndex": 0
+        },
+        {
+          "id": "node12",
+          "kind": "output",
+          "text": "SOUT",
+          "symbolId": null,
+          "children": [
+            "node11"
+          ],
+          "source": {
+            "start": 59,
+            "end": 65,
+            "line": 1,
+            "column": 60
+          },
+          "definitionSource": null,
+          "contextId": "context1",
+          "castType": null,
+          "declaredType": null,
+          "constantVariable": false,
+          "operationNumber": null,
+          "evaluation": null,
+          "depth": 1,
+          "level": 5,
+          "levelIndex": 0
+        },
+        {
+          "id": "node13",
+          "kind": "entry",
+          "text": null,
+          "symbolId": "ID1",
+          "children": [
+            "node12"
+          ],
+          "source": {
+            "start": 13,
+            "end": 17,
+            "line": 1,
+            "column": 14
+          },
+          "definitionSource": null,
+          "contextId": "context1",
+          "castType": null,
+          "declaredType": null,
+          "constantVariable": false,
+          "operationNumber": null,
+          "evaluation": null,
+          "depth": 0,
+          "level": 6,
+          "levelIndex": 0
+        }
+      ],
+      "contexts": [
+        {
+          "id": "context1",
+          "parentId": null,
+          "methodSymbolId": null,
+          "isMain": true,
+          "source": {
+            "start": 39,
+            "end": 43,
+            "line": 1,
+            "column": 40
+          },
+          "arguments": []
+        }
+      ],
+      "numbering": {
+        "operationKinds": [
+          "operator",
+          "assignment",
+          "return",
+          "conversion"
+        ],
+        "operationCount": 5,
+        "operationOrder": [
+          "node6",
+          "node9",
+          "node3",
+          "node10",
+          "node11"
+        ],
+        "levels": [
+          {
+            "level": 1,
+            "depth": 5,
+            "nodeIds": [
+              "node4",
+              "node5",
+              "node7",
+              "node8"
+            ]
+          },
+          {
+            "level": 2,
+            "depth": 4,
+            "nodeIds": [
+              "node1",
+              "node2",
+              "node6",
+              "node9"
+            ]
+          },
+          {
+            "level": 3,
+            "depth": 3,
+            "nodeIds": [
+              "node3",
+              "node10"
+            ]
+          },
+          {
+            "level": 4,
+            "depth": 2,
+            "nodeIds": [
+              "node11"
+            ]
+          },
+          {
+            "level": 5,
+            "depth": 1,
+            "nodeIds": [
+              "node12"
+            ]
+          },
+          {
+            "level": 6,
+            "depth": 0,
+            "nodeIds": [
+              "node13"
+            ]
+          }
+        ]
+      },
+      "evaluation": {
+        "complete": true,
+        "evaluatedOperationOrder": [
+          "node6",
+          "node9",
+          "node3",
+          "node10",
+          "node11"
+        ],
+        "randomPolicy": "symbolic-x"
+      }
+    },
+    "quads": [
+      "1.- (3, +, 4, 7)",
+      "2.- (5, +, 6, 11)",
+      "3.- (1, +, 2, 3)",
+      "4.- ([1], *, [2], 77)",
+      "5.- ([3], +, [4], 80)",
+      "6.- (PMAIN, SOUT, [5], 80)"
+    ],
+    "quadClosure": "ID1 PMAIN -> [6]",
+    "optimization": [
+      {
+        "original": "1.- (3, +, 4, 7)",
+        "optimization": "FO",
+        "affected": "4",
+        "modified": "ELIMINAR"
+      },
+      {
+        "original": "2.- (5, +, 6, 11)",
+        "optimization": "FO",
+        "affected": "4",
+        "modified": "1.- (5, +, 6, 11) → ELIMINAR"
+      },
+      {
+        "original": "3.- (1, +, 2, 3)",
+        "optimization": "FO",
+        "affected": "5",
+        "modified": "1.- (1, +, 2, 3) → ELIMINAR"
+      },
+      {
+        "original": "4.- ([1], *, [2], 77)",
+        "optimization": "FOD",
+        "affected": "5",
+        "modified": "1.- (7, *, 11, 77) → ELIMINAR"
+      },
+      {
+        "original": "5.- ([3], +, [4], 80)",
+        "optimization": "FOD",
+        "affected": "6",
+        "modified": "1.- (3, +, 77, 80) → ELIMINAR"
+      },
+      {
+        "original": "6.- (PMAIN, SOUT, [5], 80)",
+        "optimization": "—",
+        "affected": "cierre",
+        "modified": "1.- (PMAIN, SOUT, 80, 80)"
+      }
+    ],
+    "final": [
+      "1.- (PMAIN, SOUT, 80, 80)"
+    ],
+    "finalClosure": "ID1 PMAIN -> [1]",
+    "three": [
+      [
+        "T1. (3, +, 4)",
+        "T1",
+        1,
+        1
+      ],
+      [
+        "T2. (5, +, 6)",
+        "T1, T2",
+        2,
+        2
+      ],
+      [
+        "P3",
+        "T1, T2",
+        3,
+        3
+      ],
+      [
+        "T3. (T1, *, T2)",
+        "T3",
+        4,
+        4
+      ],
+      [
+        "T1. (1, +, 2)",
+        "T1, T3",
+        3,
+        3
+      ],
+      [
+        "T2. (T1, +, T3)",
+        "T2",
+        5,
+        5
+      ],
+      [
+        "T1. (PMAIN, SOUT, T2)",
+        "T1",
+        6,
+        null
+      ]
+    ],
+    "threeClosure": "ID1 PMAIN → T1",
+    "occupancyClosure": "ninguno",
+    "planning": {
+      "states": 8,
+      "steps": 27,
+      "reordered": true
+    },
+    "statuses": [
+      "success",
+      "success",
+      "success"
+    ]
+  },
+  "simbolico": {
+    "source": "public class Demo { public static void main(String[] args){double a=Math.random();System.out.println(a+a);} }",
+    "symbols": [
+      {
+        "id": "ID1",
+        "name": "Demo",
+        "kind": "class",
+        "declaration": 2
+      },
+      {
+        "id": "ID2",
+        "name": "args",
+        "kind": "parameter",
+        "declaration": 12
+      },
+      {
+        "id": "ID3",
+        "name": "a",
+        "kind": "local",
+        "declaration": 16
+      }
+    ],
+    "errors": [],
+    "tree": {
+      "version": 1,
+      "rootId": "node11",
+      "symbols": [
+        {
+          "id": "ID1",
+          "name": "Demo",
+          "kind": "class",
+          "declaration": 2
+        },
+        {
+          "id": "ID2",
+          "name": "args",
+          "kind": "parameter",
+          "declaration": 12
+        },
+        {
+          "id": "ID3",
+          "name": "a",
+          "kind": "local",
+          "declaration": 16
+        }
+      ],
+      "nodes": [
+        {
+          "id": "node1",
+          "kind": "external",
+          "text": "Math",
+          "symbolId": null,
+          "children": [],
+          "source": {
+            "start": 68,
+            "end": 72,
+            "line": 1,
+            "column": 69
+          },
+          "definitionSource": null,
+          "contextId": "context1",
+          "castType": null,
+          "declaredType": null,
+          "constantVariable": false,
+          "operationNumber": null,
+          "evaluation": null,
+          "depth": 5,
+          "level": 1,
+          "levelIndex": 0
+        },
+        {
+          "id": "node2",
+          "kind": "call",
+          "text": "random()",
+          "symbolId": null,
+          "children": [],
+          "source": {
+            "start": 73,
+            "end": 79,
+            "line": 1,
+            "column": 74
+          },
+          "definitionSource": null,
+          "contextId": "context1",
+          "castType": null,
+          "declaredType": null,
+          "constantVariable": false,
+          "operationNumber": null,
+          "evaluation": {
+            "type": "double",
+            "value": "x",
+            "constant": false,
+            "symbolic": true,
+            "precedence": 4,
+            "token": "VTD",
+            "display": "x"
+          },
+          "depth": 5,
+          "level": 1,
+          "levelIndex": 1
+        },
+        {
+          "id": "node3",
+          "kind": "operator",
+          "text": ".",
+          "symbolId": null,
+          "children": [
+            "node1",
+            "node2"
+          ],
+          "source": {
+            "start": 72,
+            "end": 73,
+            "line": 1,
+            "column": 73
+          },
+          "definitionSource": null,
+          "contextId": "context1",
+          "castType": null,
+          "declaredType": null,
+          "constantVariable": false,
+          "operationNumber": 1,
+          "evaluation": {
+            "type": "double",
+            "value": "x",
+            "constant": false,
+            "symbolic": true,
+            "precedence": 4,
+            "token": "VTD",
+            "display": "x"
+          },
+          "depth": 4,
+          "level": 2,
+          "levelIndex": 0
+        },
+        {
+          "id": "node4",
+          "kind": "assignment",
+          "text": null,
+          "symbolId": "ID3",
+          "children": [
+            "node3"
+          ],
+          "source": {
+            "start": 101,
+            "end": 102,
+            "line": 1,
+            "column": 102
+          },
+          "definitionSource": {
+            "start": 66,
+            "end": 81,
+            "line": 1,
+            "column": 67
+          },
+          "contextId": "context1",
+          "castType": null,
+          "declaredType": "double",
+          "constantVariable": false,
+          "operationNumber": 3,
+          "evaluation": {
+            "type": "double",
+            "value": "x",
+            "constant": false,
+            "symbolic": true,
+            "precedence": 4,
+            "token": "VTD",
+            "display": "x"
+          },
+          "depth": 3,
+          "level": 3,
+          "levelIndex": 0
+        },
+        {
+          "id": "node5",
+          "kind": "external",
+          "text": "Math",
+          "symbolId": null,
+          "children": [],
+          "source": {
+            "start": 68,
+            "end": 72,
+            "line": 1,
+            "column": 69
+          },
+          "definitionSource": null,
+          "contextId": "context1",
+          "castType": null,
+          "declaredType": null,
+          "constantVariable": false,
+          "operationNumber": null,
+          "evaluation": null,
+          "depth": 5,
+          "level": 1,
+          "levelIndex": 2
+        },
+        {
+          "id": "node6",
+          "kind": "call",
+          "text": "random()",
+          "symbolId": null,
+          "children": [],
+          "source": {
+            "start": 73,
+            "end": 79,
+            "line": 1,
+            "column": 74
+          },
+          "definitionSource": null,
+          "contextId": "context1",
+          "castType": null,
+          "declaredType": null,
+          "constantVariable": false,
+          "operationNumber": null,
+          "evaluation": {
+            "type": "double",
+            "value": "x",
+            "constant": false,
+            "symbolic": true,
+            "precedence": 4,
+            "token": "VTD",
+            "display": "x"
+          },
+          "depth": 5,
+          "level": 1,
+          "levelIndex": 3
+        },
+        {
+          "id": "node7",
+          "kind": "operator",
+          "text": ".",
+          "symbolId": null,
+          "children": [
+            "node5",
+            "node6"
+          ],
+          "source": {
+            "start": 72,
+            "end": 73,
+            "line": 1,
+            "column": 73
+          },
+          "definitionSource": null,
+          "contextId": "context1",
+          "castType": null,
+          "declaredType": null,
+          "constantVariable": false,
+          "operationNumber": 2,
+          "evaluation": {
+            "type": "double",
+            "value": "x",
+            "constant": false,
+            "symbolic": true,
+            "precedence": 4,
+            "token": "VTD",
+            "display": "x"
+          },
+          "depth": 4,
+          "level": 2,
+          "levelIndex": 1
+        },
+        {
+          "id": "node8",
+          "kind": "assignment",
+          "text": null,
+          "symbolId": "ID3",
+          "children": [
+            "node7"
+          ],
+          "source": {
+            "start": 103,
+            "end": 104,
+            "line": 1,
+            "column": 104
+          },
+          "definitionSource": {
+            "start": 66,
+            "end": 81,
+            "line": 1,
+            "column": 67
+          },
+          "contextId": "context1",
+          "castType": null,
+          "declaredType": "double",
+          "constantVariable": false,
+          "operationNumber": 4,
+          "evaluation": {
+            "type": "double",
+            "value": "x",
+            "constant": false,
+            "symbolic": true,
+            "precedence": 4,
+            "token": "VTD",
+            "display": "x"
+          },
+          "depth": 3,
+          "level": 3,
+          "levelIndex": 1
+        },
+        {
+          "id": "node9",
+          "kind": "operator",
+          "text": "+",
+          "symbolId": null,
+          "children": [
+            "node4",
+            "node8"
+          ],
+          "source": {
+            "start": 102,
+            "end": 103,
+            "line": 1,
+            "column": 103
+          },
+          "definitionSource": null,
+          "contextId": "context1",
+          "castType": null,
+          "declaredType": null,
+          "constantVariable": false,
+          "operationNumber": 5,
+          "evaluation": {
+            "type": "double",
+            "value": "x+x",
+            "constant": false,
+            "symbolic": true,
+            "precedence": 1,
+            "token": "VTD",
+            "display": "x+x"
+          },
+          "depth": 2,
+          "level": 4,
+          "levelIndex": 0
+        },
+        {
+          "id": "node10",
+          "kind": "output",
+          "text": "SOUT",
+          "symbolId": null,
+          "children": [
+            "node9"
+          ],
+          "source": {
+            "start": 82,
+            "end": 88,
+            "line": 1,
+            "column": 83
+          },
+          "definitionSource": null,
+          "contextId": "context1",
+          "castType": null,
+          "declaredType": null,
+          "constantVariable": false,
+          "operationNumber": null,
+          "evaluation": null,
+          "depth": 1,
+          "level": 5,
+          "levelIndex": 0
+        },
+        {
+          "id": "node11",
+          "kind": "entry",
+          "text": null,
+          "symbolId": "ID1",
+          "children": [
+            "node10"
+          ],
+          "source": {
+            "start": 13,
+            "end": 17,
+            "line": 1,
+            "column": 14
+          },
+          "definitionSource": null,
+          "contextId": "context1",
+          "castType": null,
+          "declaredType": null,
+          "constantVariable": false,
+          "operationNumber": null,
+          "evaluation": null,
+          "depth": 0,
+          "level": 6,
+          "levelIndex": 0
+        }
+      ],
+      "contexts": [
+        {
+          "id": "context1",
+          "parentId": null,
+          "methodSymbolId": null,
+          "isMain": true,
+          "source": {
+            "start": 39,
+            "end": 43,
+            "line": 1,
+            "column": 40
+          },
+          "arguments": []
+        }
+      ],
+      "numbering": {
+        "operationKinds": [
+          "operator",
+          "assignment",
+          "return",
+          "conversion"
+        ],
+        "operationCount": 5,
+        "operationOrder": [
+          "node3",
+          "node7",
+          "node4",
+          "node8",
+          "node9"
+        ],
+        "levels": [
+          {
+            "level": 1,
+            "depth": 5,
+            "nodeIds": [
+              "node1",
+              "node2",
+              "node5",
+              "node6"
+            ]
+          },
+          {
+            "level": 2,
+            "depth": 4,
+            "nodeIds": [
+              "node3",
+              "node7"
+            ]
+          },
+          {
+            "level": 3,
+            "depth": 3,
+            "nodeIds": [
+              "node4",
+              "node8"
+            ]
+          },
+          {
+            "level": 4,
+            "depth": 2,
+            "nodeIds": [
+              "node9"
+            ]
+          },
+          {
+            "level": 5,
+            "depth": 1,
+            "nodeIds": [
+              "node10"
+            ]
+          },
+          {
+            "level": 6,
+            "depth": 0,
+            "nodeIds": [
+              "node11"
+            ]
+          }
+        ]
+      },
+      "evaluation": {
+        "complete": true,
+        "evaluatedOperationOrder": [
+          "node3",
+          "node7",
+          "node4",
+          "node8",
+          "node9"
+        ],
+        "randomPolicy": "symbolic-x"
+      }
+    },
+    "quads": [
+      "1.- (Math, ., random(), x)",
+      "2.- (Math, ., random(), x)",
+      "3.- (ID3, =, [1], x)",
+      "4.- (ID3, =, [2], x)",
+      "5.- ([3], +, [4], x+x)",
+      "6.- (PMAIN, SOUT, [5], x+x)"
+    ],
+    "quadClosure": "ID1 PMAIN -> [6]",
+    "optimization": [
+      {
+        "original": "1.- (Math, ., random(), x)",
+        "optimization": "—",
+        "affected": "3",
+        "modified": "1.- (Math, ., random(), x)"
+      },
+      {
+        "original": "2.- (Math, ., random(), x)",
+        "optimization": "RS",
+        "affected": "4",
+        "modified": "ELIMINAR"
+      },
+      {
+        "original": "3.- (ID3, =, [1], x)",
+        "optimization": "—",
+        "affected": "5",
+        "modified": "2.- (ID3, =, [1], x)"
+      },
+      {
+        "original": "4.- (ID3, =, [2], x)",
+        "optimization": "RSD",
+        "affected": "5",
+        "modified": "3.- (ID3, =, [1], x) → ELIMINAR"
+      },
+      {
+        "original": "5.- ([3], +, [4], x+x)",
+        "optimization": "—",
+        "affected": "6",
+        "modified": "3.- ([2], +, [2], x+x)"
+      },
+      {
+        "original": "6.- (PMAIN, SOUT, [5], x+x)",
+        "optimization": "—",
+        "affected": "cierre",
+        "modified": "4.- (PMAIN, SOUT, [3], x+x)"
+      }
+    ],
+    "final": [
+      "1.- (Math, ., random(), x)",
+      "2.- (ID3, =, [1], x)",
+      "3.- ([2], +, [2], x+x)",
+      "4.- (PMAIN, SOUT, [3], x+x)"
+    ],
+    "finalClosure": "ID1 PMAIN -> [4]",
+    "three": [
+      [
+        "T1. (Math, ., random())",
+        "T1",
+        1,
+        1
+      ],
+      [
+        "T2. (Math, ., random())",
+        "T1, T2",
+        2,
+        2
+      ],
+      [
+        "ID3 = T1",
+        "T2",
+        3,
+        3
+      ],
+      [
+        "ID3 = T2",
+        "ninguno",
+        4,
+        4
+      ],
+      [
+        "T1. (ID3, +, ID3)",
+        "T1",
+        5,
+        5
+      ],
+      [
+        "T2. (PMAIN, SOUT, T1)",
+        "T2",
+        6,
+        null
+      ]
+    ],
+    "threeClosure": "ID1 PMAIN → T2",
+    "occupancyClosure": "ninguno",
+    "planning": {
+      "states": 0,
+      "steps": 0,
+      "reordered": false
+    },
+    "statuses": [
+      "success",
+      "success",
+      "success"
+    ]
+  }
+}

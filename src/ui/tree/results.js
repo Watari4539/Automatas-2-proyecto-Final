@@ -14,7 +14,7 @@ export function createTreeResultsView() {
     list.replaceChildren(); notices.hidden = true;
     summary.textContent = '';
   }
-  function show(result) {
+  function show(result, source = '') {
     clear();
     const analysis = result.treeAnalysis;
     if (!analysis || analysis.status === 'empty') return;
@@ -23,7 +23,7 @@ export function createTreeResultsView() {
     host.hidden = !analysis.layout;
     if (analysis.layout) {
       viewer ??= createTreeViewer(host);
-      viewer.show(analysis.layout);
+      viewer.show(analysis.layout, source);
     }
     const messages = [...analysis.diagnostics];
     if (analysis.layout && result.errors.length) messages.unshift({ message: 'El árbol representa el subconjunto admitido. Consulta también los errores de la tabla; el dibujo no implica que el código esté libre de errores.' });

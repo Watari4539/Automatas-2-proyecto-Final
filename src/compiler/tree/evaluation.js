@@ -38,7 +38,9 @@ export function evaluateTree(tree) {
     }
     if (left?.marker === 'object' && scalar(right)) return { ...right, constant: false };
     if (left?.type === 'String' && right?.marker === 'externalCall' && right.name === 'length()') {
-      return left.symbolic ? symbolicValue('int', '(' + left.value + ').length()') : typedValue('int', BigInt(left.value.length), false);
+      return left.symbolic && left.knownLength === undefined
+        ? symbolicValue('int', '(' + left.value + ').length()')
+        : typedValue('int', BigInt(left.symbolic ? left.knownLength : left.value.length), false);
     }
     if (left?.type === 'String' && right?.marker === 'externalCall' && ['substring()', 'charAt()'].includes(right.name)) {
       const args = right.args ?? [];
@@ -46,7 +48,16 @@ export function evaluateTree(tree) {
       if ((charAt && args.length !== 1) || (!charAt && ![1, 2].includes(args.length))) fail('EVAL_ARGUMENT_COUNT', 'Cantidad incorrecta de argumentos para el método de String.');
       if (args.some(arg => !['byte', 'short', 'char', 'int'].includes(arg?.type))) fail('EVAL_ARGUMENT_TYPE', 'Los índices de String deben ser enteros compatibles con int.');
       if (left.symbolic || args.some(arg => arg.symbolic)) {
-        return symbolicValue(charAt ? 'char' : 'String', '(' + annotation(left).display + ').' + right.name.slice(0, -2) + '(' + args.map(arg => annotation(arg).display).join(',') + ')');
+        const result = symbolicValue(charAt ? 'char' : 'String', '(' + annotation(left).display + ').' + right.name.slice(0, -2) + '(' + args.map(arg => annotation(arg).display).join(',') + ')');
+        if (!charAt && args.every(arg => !arg.symbolic)) {
+          const indexes = args.map(arg => arg.type === 'char' ? arg.value.charCodeAt(0) : Number(arg.value));
+          const [start, end = left.knownLength] = indexes;
+          if (start < 0 || end !== undefined && end < start || left.knownLength !== undefined && end > left.knownLength) {
+            fail('EVAL_STRING_BOUNDS', 'El índice o intervalo está fuera de los límites de la cadena.');
+          }
+          if (end !== undefined) result.knownLength = end - start;
+        }
+        return result;
       }
       const indexes = args.map(arg => arg.type === 'char' ? arg.value.charCodeAt(0) : Number(arg.value));
       const [start, end = left.value.length] = indexes;

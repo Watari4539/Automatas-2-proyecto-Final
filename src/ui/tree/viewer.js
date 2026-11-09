@@ -32,6 +32,10 @@ export function createTreeViewer(host) {
   const levelCheckbox = document.createElement('input');
   levelCheckbox.type = 'checkbox';
   levelToggle.append(levelCheckbox, document.createTextNode('Mostrar niveles'));
+  const codeToggle = htmlElement('label', 'tree-level-toggle');
+  const codeCheckbox = document.createElement('input');
+  codeCheckbox.type = 'checkbox';
+  codeToggle.append(codeCheckbox, document.createTextNode('Mostrar código'));
   const controls = htmlElement('div', 'tree-controls');
   function button(text, label, action) {
     const element = htmlElement('button', 'tree-control', text);
@@ -46,7 +50,7 @@ export function createTreeViewer(host) {
   const percent = button('100%', 'Restablecer zoom al 100%', () => zoom(1));
   const plus = button('+', 'Acercar árbol', () => zoom(camera.scale * 1.25));
   const fitButton = button('Encuadrar', 'Encuadrar árbol completo', fit);
-  toolbar.append(stats, levelToggle, controls);
+  toolbar.append(stats, levelToggle, codeToggle, controls);
 
   const viewport = htmlElement('div', 'tree-viewport');
   viewport.tabIndex = 0;
@@ -73,6 +77,7 @@ export function createTreeViewer(host) {
       guide.line.setAttribute('x2', width);
       guide.line.setAttribute('y1', y);
       guide.line.setAttribute('y2', y);
+      guide.label.setAttribute('x', width - 12);
       guide.label.setAttribute('y', y - 7);
     }
   }
@@ -115,7 +120,50 @@ export function createTreeViewer(host) {
   for (const name of ['pointerdown', 'wheel', 'keydown']) {
     symbolSection.addEventListener(name, event => event.stopPropagation(), { signal });
   }
-  shell.append(toolbar, viewport, help, accessible);
+  const workspace = htmlElement('div', 'tree-workspace');
+  const codePanel = htmlElement('section', 'tree-source-panel');
+  codePanel.hidden = true;
+  const codeHeading = htmlElement('h3', '', 'Código fuente');
+  codeHeading.id = prefix + '-source-heading';
+  codePanel.setAttribute('aria-labelledby', codeHeading.id);
+  const codePre = htmlElement('pre', 'tree-source-code');
+  codePre.tabIndex = 0;
+  const code = document.createElement('code');
+  codePre.append(code);
+  codePanel.append(codeHeading, codePre);
+  let sourceText = '', activeNode = null;
+  const sourceNodes = new Map();
+  function highlightSource(group) {
+    if (activeNode === group) return;
+    activeNode?.classList.remove('is-source-highlighted');
+    activeNode = group;
+    code.replaceChildren(document.createTextNode(sourceText));
+    if (!group || !codeCheckbox.checked) return;
+    const range = sourceNodes.get(group.dataset.nodeId);
+    if (!range || range.start < 0 || range.end <= range.start || range.end > sourceText.length) return;
+    group.classList.add('is-source-highlighted');
+    const mark = document.createElement('mark');
+    mark.textContent = sourceText.slice(range.start, range.end);
+    code.replaceChildren(document.createTextNode(sourceText.slice(0, range.start)), mark,
+      document.createTextNode(sourceText.slice(range.end)));
+    // Scroll only the code pane; hovering must never move the page or the tree.
+    const target = mark.getBoundingClientRect(), pane = codePre.getBoundingClientRect();
+    if (target.top < pane.top || target.bottom > pane.bottom)
+      codePre.scrollTop += target.top - pane.top - codePre.clientHeight / 2;
+    if (target.left < pane.left || target.right > pane.right)
+      codePre.scrollLeft += target.left - pane.left - 16;
+  }
+  const nodeAt = target => target instanceof Element ? target.closest('.tree-node') : null;
+  world.addEventListener('pointerover', event => highlightSource(nodeAt(event.target)), { signal });
+  world.addEventListener('pointerout', event => highlightSource(nodeAt(event.relatedTarget)), { signal });
+  world.addEventListener('click', event => highlightSource(nodeAt(event.target)), { signal });
+  codeCheckbox.addEventListener('change', () => {
+    codePanel.hidden = !codeCheckbox.checked;
+    workspace.classList.toggle('has-source', codeCheckbox.checked);
+    highlightSource(null);
+  }, { signal });
+  workspace.append(viewport, codePanel);
+  shell.append(toolbar, workspace, help, accessible);
   host.append(shell);
 
   function paint() {
@@ -130,6 +178,7 @@ export function createTreeViewer(host) {
     minus.disabled = !layout || camera.scale <= MIN_ZOOM;
     plus.disabled = !layout || camera.scale >= MAX_ZOOM;
     percent.disabled = fitButton.disabled = levelCheckbox.disabled = !layout;
+    codeCheckbox.disabled = !layout || !sourceText;
     paintLevels();
   }
   function schedule() { if (frame === null && !destroyed) frame = requestAnimationFrame(paint); }
@@ -209,9 +258,15 @@ export function createTreeViewer(host) {
     lines.forEach((line, index) => text.append(svgElement('tspan', { x: position.x, y: position.y + (index - (lines.length - 1) / 2) * config.lineHeight }, line)));
     return text;
   }
-  function show(next) {
+  function show(next, source = '') {
     if (destroyed) throw new Error('El visor ya fue destruido.');
     cancelPointers();
+    highlightSource(null);
+    sourceText = source;
+    code.textContent = sourceText;
+    sourceNodes.clear();
+    for (const node of next.nodes) sourceNodes.set(node.id, node.source);
+    codePre.scrollTop = codePre.scrollLeft = 0;
     highlightSymbol(null); symbolNodes.clear();
     const drawing = document.createDocumentFragment();
     const descriptions = document.createDocumentFragment();
@@ -234,7 +289,7 @@ export function createTreeViewer(host) {
     levelGuides = [...new Map(next.nodes.map(node => [node.level, node.y]))].map(([level, y]) => ({
       y,
       line: svgElement('line', { x1: 0, class: 'tree-level-line' }),
-      label: svgElement('text', { x: 12, class: 'tree-level-label' }, `Nivel ${level}`),
+      label: svgElement('text', { 'text-anchor': 'end', class: 'tree-level-label' }, `Nivel ${level}`),
     }));
     levelLayer.replaceChildren(...levelGuides.flatMap(guide => [guide.line, guide.label]));
     const symbolRows = document.createDocumentFragment();
@@ -253,6 +308,7 @@ export function createTreeViewer(host) {
     empty.hidden = true; fit();
   }
   function clear() {
+    highlightSource(null); sourceNodes.clear(); sourceText = ''; code.replaceChildren();
     highlightSymbol(null); symbolNodes.clear();
     cancelPointers(); layout = null; world.replaceChildren(); accessible.replaceChildren();
     levelGuides = []; levelLayer.replaceChildren();

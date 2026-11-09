@@ -154,3 +154,77 @@ Si la cadena pasa a ser literal por PC o FO previos, corresponde FOD.
 No se usa solamente el resultado anotado como evidencia: el receptor debe ser
 una cadena constante. Math.random(), cadenas simbólicas y otros accesos siguen
 protegidos.
+
+## Referencia de clase: lectura, substring y longitud
+
+El ejemplo de 17 cuádruplos del 1 de noviembre se conserva como prueba en
+`tests/optimization-classroom.test.js`. Sus eliminaciones son:
+
+| Original | Técnica | Motivo |
+| --- | --- | --- |
+| 2 | PC | ID5 recibe la constante 1 y no cambia. |
+| 5 | FOD | PC permite calcular 1 + 1. |
+| 6 | FO | 7 * 7 contiene constantes desde el inicio. |
+| 7 | FOD | El registro 5 se sustituye por 2: 2 * 15. |
+| 8 | FOD | El registro 6 se sustituye por 49: 50 - 49. |
+| 10 | SED | Los cambios anteriores permiten 30 / 1; SE tiene prioridad sobre FO. |
+| 11 | FO | substring(0,4) tiene longitud 4 si termina correctamente, aunque su contenido sea desconocido. |
+| 12 | PCD | ID7 recibe 30 tras las eliminaciones; la sustitución conserva el tipo double: 30.0. |
+| 13 | PCD | ID8 recibe 4 tras FO; no es SED porque es una asignación, no una identidad aritmética. |
+| 14 | FOD | 30.0 * 4 se sustituye por 120.0. |
+
+Permanecen los originales 1, 3, 4, 9, 15, 16 y 17, renumerados 1–7.
+El retorno conserva la conversión a char (`120.0` → `'x'`) y no se elimina.
+Las referencias de la columna «afectado» usan números originales; las del
+cuádruplo modificado usan la numeración de ese estado o la final.
+
+La inferencia de longitud recorre referencias y asignaciones de String y solo
+acepta límites enteros conocidos. Nunca deduce constancia de un valor anotado
+como resultado. Conserva la llamada substring, incluso si su resultado deja de
+usarse: podría lanzar una excepción y no debe desaparecer. No convierte el
+contenido desconocido en una cadena literal. Con límites desconocidos no aplica
+FO. Si los límites se conocen gracias a otra optimización, corresponde FOD.
+La misma longitud conocida se conserva en la evaluación simbólica del árbol para
+que sus valores, los cuádruplos y la optimización sean coherentes.
+
+La prueba usa Scanner como entrada estructurada al motor de optimización; no
+incorpora soporte nuevo para ejecutar lecturas de consola en el analizador Java.
+
+## Dos referencias adicionales: propagación y reutilización encadenada
+
+`tests/optimization-classroom-reuse.test.js` registra las dos hojas adicionales:
+
+- **22 → 12 registros:** FO en 1, 6 y 7; PC en 3 y 15; PCD en 2, 4 y 9;
+  FOD en 5 y 8. Se conserva la lectura externa, su longitud desconocida y las
+  operaciones que dependen de ella. `'A'` se convierte a `65` al propagarse desde
+  la asignación entera. `3/2` da `1`; `3.1416f` conserva el tipo float. El cierre
+  cambia de `[22]` a `[12]`.
+- **21 → 13 registros:** RS en 2; RSD en 4, 6, 8 y 12; PC en 9; FO en 10 y 13.
+  Primero se reutiliza la definición de Scanner, luego su lectura, la longitud,
+  la asignación y la multiplicación. El cierre apunta al registro final 13.
+
+Las referencias originales son la autoridad para las dependencias, no las
+expresiones abreviadas del resultado manuscrito. En la primera hoja `(18*y)/5`
+no puede sustituirse por `3*y`: con y=2 la división entera da 7, no 6. Tampoco se
+invierte el signo de la resta final ni se reagrupan operaciones float, que tienen
+redondeo. Las pruebas calculan los resultados tipados respetando ese orden.
+
+### Evidencia necesaria para RS
+
+Los operandos se comparan por su valor y tipo, no por si un literal ya incluye
+metadatos producidos por FO. Los registros anteriores son valores estables y
+pueden reutilizarse aunque haya asignaciones intermedias. Se distinguen el orden
+de operandos, los tipos, el cero positivo y el negativo y los contextos de llamada.
+
+`equivalentRecords` contiene grupos de IDs internos qN que representan copias de
+una misma operación fuente. `collectEquivalentRecords` los obtiene del árbol,
+usando ubicación, identidad y contexto de llamada. Permite RS para asignaciones y
+accesos duplicados; no permite eliminar RTN ni SOUT. Dos llamadas escritas por
+separado nunca se agrupan solo porque su texto o resultado simbólico coincidan.
+Los ejemplos de Scanner se prueban como cuádruplos estructurados con esa evidencia;
+esto no amplía el soporte de Scanner del analizador Java.
+
+`length()` sobre el mismo valor String puede reutilizarse aun si su longitud es
+desconocida. Esto es RS/RSD, no FO. El validador exige la evidencia para las
+operaciones que pueden tener efectos y comprueba la etiqueta RSD frente a los
+operandos originales. Las sustituciones mantienen trazabilidad, numeración y cierre.

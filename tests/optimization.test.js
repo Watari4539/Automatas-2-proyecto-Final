@@ -36,7 +36,7 @@ test('ejemplo aprobado: siete eliminaciones, tipos, derivados y cierre', () => {
   const table = formatOptimizationTable(out);
   assert.equal(table.length, 10);
   assert.deepEqual(table.map(r => r.optimization), ['FO', 'SE', 'PCD', 'FO', 'PCD', 'FOD', 'FOD', '—', '—', '—']);
-  assert.deepEqual(table.map(r => r.affected), ['2', '3', '6', '5', '7', '7', '8', '—', '—', '—']);
+  assert.deepEqual(table.map(r => r.affected), ['2', '3', '6', '5', '7', '7', '8', '9', '10', 'cierre']);
   assert.deepEqual(table.map(r => r.modified), [
     'ELIMINAR',
     '1.- (109, /, 1, 109) → ELIMINAR',
@@ -101,7 +101,7 @@ test('tabla conserva filas sin optimización y no expone resultados bloqueados',
   const out = optimizeQuadruples(input([row(1, ext('Math'), '.', ext('random()'), '1.0')]));
   const table = formatOptimizationTable(out);
   assert.deepEqual(table[0], {
-    original: '1.- (Math, ., random(), 1.0)', optimization: '—', affected: '—', modified: '1.- (Math, ., random(), 1.0)',
+    original: '1.- (Math, ., random(), 1.0)', optimization: '—', affected: 'cierre', modified: '1.- (Math, ., random(), 1.0)',
   });
   assert.deepEqual(formatOptimizationTable(optimizeQuadruples({status: 'partial'})), []);
 });

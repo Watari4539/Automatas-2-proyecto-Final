@@ -1,5 +1,5 @@
 import { optimizeQuadruples } from './optimization/index.js';
-import { collectConstantAssignments } from './optimization/evidence.js';
+import { collectConstantAssignments, collectEquivalentRecords } from './optimization/evidence.js';
 import { createEmptyOptimizationResult } from './optimization/model.js';
 import { requestAnalysis } from './index.js';
 import { buildProgramTree } from './tree/program.js';
@@ -53,7 +53,7 @@ export function analyzeProgram(source) {
     try {
       if (result.quadrupleAnalysis.status === 'success' && !result.errors.length) {
         const constantAssignments = collectConstantAssignments(source, evaluated.tree, result.quadrupleAnalysis);
-        result.optimizationAnalysis = optimizeQuadruples(result.quadrupleAnalysis, { constantAssignments });
+        result.optimizationAnalysis = optimizeQuadruples(result.quadrupleAnalysis, { constantAssignments, equivalentRecords: collectEquivalentRecords(evaluated.tree, result.quadrupleAnalysis) });
       }
     } catch {
       result.optimizationAnalysis = { ...createEmptyOptimizationResult(), status: 'invalid', diagnostics: [{ message: 'No se pudo completar la optimización. Los cuádruplos originales siguen disponibles.' }] };

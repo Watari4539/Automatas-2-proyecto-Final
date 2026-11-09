@@ -84,7 +84,7 @@ form.addEventListener('submit', (event) => {
       const { result } = data;
       results.show(result);
       errors.show(result);
-      tree.show(result);
+      tree.show(result, source);
       quadruples.show(result.quadrupleAnalysis, { hasSourceErrors: result.errors.length > 0, optimization: result.optimizationAnalysis });
       threeAddress.show(result.threeAddressAnalysis, { hasSourceErrors: result.errors.length > 0 });
       status.hidden = true;

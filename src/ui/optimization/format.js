@@ -22,6 +22,11 @@ export function formatOptimizationRow(row) {
     } else throw new TypeError('Transformación sin formato explicativo.');
   }
   if (row.final) {
+    if (!row.events.length) {
+      const consumers = (row.affectedNumbers ?? []).map(String);
+      if (row.affectsClosure) consumers.push('cierre');
+      if (consumers.length) affected.push(consumers.join(', '));
+    }
     const final = formatRecord(row.final);
     // A surviving row with intermediate events still exposes its final state.
     modifications.push(final);

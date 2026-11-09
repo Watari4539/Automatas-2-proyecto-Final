@@ -1,3 +1,5 @@
+import { reuseOrigins, reuseKey } from './reuse.js';
+import { foldedStringLength } from './string-facts.js';
 import { isDeepStrictEqual as equal } from './validation-equality.js';
 import { binaryValue, readLiteral, convertValue, annotation } from '../tree/values.js';
 import { PROTECTED_OPERATORS } from './model.js';
@@ -9,14 +11,12 @@ function map(value, fn) {
   return fn(value.kind === 'externalCall' ? { ...value, args: value.args.map(arg => map(arg, fn)) } : clone(value));
 }
 const literal = o => o.kind !== 'literal' ? null : o.type ? {type: o.type, value: o.value, constant: true} : readLiteral(o.text);
-const constantLength = r => r.operator === '.' && literal(r.left)?.type === 'String' &&
-  !r.left.symbolic && r.right.kind === 'external' && r.right.text === 'length()';
 const sameValue = (a, b) => !!a && !!b && a.type === b.type && !!a.symbolic === !!b.symbolic && Object.is(a.value, b.value);
 const pure = new Set(['+', '-', '*', '/']);
 
 /** Replays the explanation independently and verifies the final graph and values.
  * Never throws for malformed output; never changes input or result. */
-export function validateOptimization(input, output, { constantAssignments = [] } = {}) {
+export function validateOptimization(input, output, { constantAssignments = [], equivalentRecords = [] } = {}) {
   const diagnostics = [];
   try {
     const check = (condition, message) => { if (!condition) throw new Error(message); };
@@ -34,6 +34,7 @@ export function validateOptimization(input, output, { constantAssignments = [] }
       return {...clone(r), id: `q${r.number}`, left: internal(r.left), right: internal(r.right)};
     });
     const originals = new Map(active.map(r => [r.id, clone(r)]));
+    const origins = reuseOrigins(equivalentRecords, new Set(originals.keys()));
     let closure = input.closure ? clone(input.closure) : null;
     if (closure) closure.target = map(closure.target, o => {
       if (o.kind !== 'register') return o;
@@ -52,11 +53,21 @@ export function validateOptimization(input, output, { constantAssignments = [] }
     };
     const value = o => o.kind === 'reference' ? originals.get(o.recordId)?.result : literal(o);
     const has = (o, id) => { let found = false; map(o, x => { found ||= x.kind === 'reference' && x.recordId === id; return x; }); return found; };
+    const simplifications = row => {
+      if (!['byte','short','int','long'].includes(row.result.type)) return [];
+      const a = literal(row.left), b = literal(row.right);
+      const is = (v, n) => v && ['byte','short','int','long'].includes(v.type) && v.value === BigInt(n);
+      const candidates = [];
+      if (['*','/'].includes(row.operator) && is(b,1) || ['+','-'].includes(row.operator) && is(b,0)) candidates.push(row.left);
+      if (row.operator === '*' && is(a,1) || row.operator === '+' && is(a,0)) candidates.push(row.right);
+      return candidates.filter(o => value(o)?.type === row.result.type);
+    };
     for (const [index, event] of output.events.entries()) {
       check(event.sequence === index + 1, 'Secuencia de eventos inválida.');
       const row = active.find(r => r.id === event.recordId);
       check(row && event.action === 'remove', 'Evento sin registro activo o acción soportada.');
-      check(!PROTECTED_OPERATORS.includes(row.operator) || event.technique === 'FO' && constantLength(row), 'Se eliminó una operación protegida.');
+      const length = foldedStringLength(row, new Map(active.map(r => [r.id, r])));
+      check(!PROTECTED_OPERATORS.includes(row.operator) || event.technique === 'FO' && length || event.technique === 'RS' && reuseKey(row, origins, originals), 'Se eliminó una operación protegida.');
       check(equal(project(row), event.before) && event.after === null, 'Estado intermedio incorrecto.');
       check(typeof event.derived === 'boolean' && Array.isArray(event.causedBy), 'Derivación inválida.');
       check(event.causedBy.every(n => Number.isInteger(n) && n > 0 && n < event.sequence), 'Causa futura o inexistente.');
@@ -64,25 +75,25 @@ export function validateOptimization(input, output, { constantAssignments = [] }
       const a = literal(row.left), b = literal(row.right);
       const replacement = event.replacement;
       const original = originals.get(row.id);
-      if (event.technique === 'FO') check(event.derived === !(constantLength(original) || pure.has(original.operator) && literal(original.left) && literal(original.right)), 'Etiqueta FOD incorrecta.');
+      if (event.technique === 'FO') check(event.derived === !(foldedStringLength(original, originals) || pure.has(original.operator) && literal(original.left) && literal(original.right)), 'Etiqueta FOD incorrecta.');
       if (event.technique === 'PC') check(event.derived === !literal(original.right), 'Etiqueta PCD incorrecta.');
       if (!event.derived) check(event.causedBy.length === 0, 'Técnica directa con causas derivadas.');
       if (event.technique === 'FO') {
-        check(constantLength(row) || pure.has(row.operator) && a && b, 'Folding sin operandos constantes.');
-        check(sameValue(constantLength(row) ? {type:'int',value:BigInt(a.value.length)} : binaryValue(row.operator, a, b), literal(replacement)), 'Folding cambia el resultado o tipo.');
+        check(simplifications(row).length === 0, 'SE tiene prioridad sobre FO.');
+        check(length || pure.has(row.operator) && a && b, 'Folding sin operandos constantes.');
+        check(sameValue(length ? length : binaryValue(row.operator, a, b), literal(replacement)), 'Folding cambia el resultado o tipo.');
       } else if (event.technique === 'PC') {
         check(row.operator === '=' && evidence.has(row.id) && b, 'Propagación sin evidencia de constancia.');
         check(sameValue(convertValue(b, row.result.type, 'cast'), literal(replacement)), 'PC pierde conversión de tipo.');
       } else if (event.technique === 'SE') {
-        const is = (v, n) => v && ['byte','short','int','long'].includes(v.type) && v.value === BigInt(n);
-        const candidates = [];
-        if (['*','/'].includes(row.operator) && is(b,1) || ['+','-'].includes(row.operator) && is(b,0)) candidates.push(row.left);
-        if (row.operator === '*' && is(a,1) || row.operator === '+' && is(a,0)) candidates.push(row.right);
-        check(candidates.some(o => equal(o, replacement)), 'Identidad algebraica inválida.');
+        check(simplifications(row).some(o => equal(o, replacement)), 'Identidad algebraica inválida.');
+        check(event.derived === (simplifications(original).length === 0), 'Etiqueta SED incorrecta.');
       } else if (event.technique === 'RS') {
         const prior = active.find(r => r.id === replacement.recordId);
         check(replacement.kind === 'reference' && prior && active.indexOf(prior) < active.indexOf(row), 'RS no apunta a una expresión anterior.');
-        check(pure.has(row.operator) && prior.operator === row.operator && prior.contextId === row.contextId && equal(prior.left, row.left) && equal(prior.right, row.right), 'RS fusiona expresiones distintas.');
+        const currentKey = reuseKey(row, origins, originals);
+        check(currentKey && currentKey === reuseKey(prior, origins, originals), 'RS fusiona expresiones distintas o sin evidencia de origen.');
+        check(event.derived === (reuseKey(original, origins, originals) !== reuseKey(originals.get(prior.id), origins, originals)), 'Etiqueta RSD incorrecta.');
       } else throw new Error('Técnica desconocida.');
       check(sameValue(value(replacement), row.result), 'La sustitución cambia el valor o el tipo registrado.');
       if (replacement.kind === 'literal') {

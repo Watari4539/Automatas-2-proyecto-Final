@@ -43,3 +43,14 @@
 .tree-node.is-symbol-highlighted circle { fill: #d7efaa; stroke: #267b47; stroke-width: 3px; vector-effect: non-scaling-stroke; }
 .tree-node.is-symbol-highlighted .tree-label { fill: #173d26; font-weight: 700; }
 .tree-symbols tr:focus-visible { outline: 2px solid #759b60; outline-offset: -2px; background: #dcebd4; }
+
+.tree-workspace { display: grid; grid-template-columns: minmax(0, 1fr); }
+.tree-workspace.has-source { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); }
+.tree-source-panel { min-width: 0; height: clamp(360px, 68vh, 800px); display: flex; flex-direction: column; background: #17251f; color: #e3ede1; border-left: 1px solid #cbdac5; }
+.tree-source-panel h3 { margin: 0; padding: 14px 16px; background: #203028; border-bottom: 1px solid #35483f; font-size: 12px; font-weight: 600; }
+.tree-source-code { margin: 0; padding: 16px; flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; font: 13px/1.8 "SFMono-Regular", Consolas, monospace; tab-size: 4; white-space: pre; }
+.tree-source-code code { font: inherit; }
+.tree-source-code mark { background: #d7efaa; color: #173d26; border-radius: 2px; outline: 2px solid #8dbd70; }
+.tree-source-code:focus-visible { outline: 2px solid #759b60; outline-offset: -3px; }
+.tree-node.is-source-highlighted circle { stroke: #267b47; stroke-width: 3px; vector-effect: non-scaling-stroke; }
+@media (max-width: 700px) { .tree-source-panel { height: 65vh; min-height: 360px; } }

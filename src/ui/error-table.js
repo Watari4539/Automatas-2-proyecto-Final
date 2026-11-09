@@ -62,7 +62,7 @@ export function createErrorTableView() {
       summary.textContent = `${counts[0]} léxicos · ${counts[1]} sintácticos · ${counts[2]} semánticos`;
       scroll.hidden = rows.length === 0;
       pagination.hidden = rows.length === 0;
-      coverage.hidden = result.errorAnalysis.complete;
+      coverage.hidden = rows.length === 0 || result.errorAnalysis.complete;
       const notices = result.errorAnalysis.notices;
       coverageSummary.textContent = `Revisión parcial · ${notices.length ? `${notices.length} aviso(s) de cobertura` : 'se alcanzó un límite de análisis'}`;
       const fragment = document.createDocumentFragment();

@@ -88,7 +88,8 @@ export function layoutTree(tree, options = {}) {
   for (const row of rows) {
     for (const id of row.nodeIds) {
       const shape = measured.get(id), x = xs.get(id), y = ys[shape.depth];
-      nodes.push({ ...shape, symbolId: source.get(id).symbolId, x, y, bounds: { x: x - shape.halfWidth, y: y - shape.halfHeight, width: shape.halfWidth * 2, height: shape.halfHeight * 2 }, label: { x, y }, operation: shape.operationNumber === null ? null : { x: x - shape.radius - 8, y, anchor: 'end' }, value: shape.valueLines.length ? { x: x + shape.radius + 16, y, anchor: 'start' } : null });
+      const location = source.get(id).definitionSource ?? source.get(id).source;
+      nodes.push({ ...shape, source: location ? { ...location } : null, symbolId: source.get(id).symbolId, x, y, bounds: { x: x - shape.halfWidth, y: y - shape.halfHeight, width: shape.halfWidth * 2, height: shape.halfHeight * 2 }, label: { x, y }, operation: shape.operationNumber === null ? null : { x: x - shape.radius - 8, y, anchor: 'end' }, value: shape.valueLines.length ? { x: x + shape.radius + 16, y, anchor: 'start' } : null });
       source.get(id).children.forEach(child => xs.set(child, x + offsets.get(child)));
     }
   }
